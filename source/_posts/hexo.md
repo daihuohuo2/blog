@@ -44,3 +44,14 @@ myblog\_config.yml
 只用在post下面新建一个和md同名的文件夹，把图片资源存里就行
 并且要是用这样的路径`{% asset_img 1.png %}`
 
+6.部署到GitHub Page
+新建仓库
+修改url，保证最后一个目录要到myblog这个地方，不然会导致浏览器找不到css/js的资源文件导致只剩一个html页面，从而使渲染失败
+之后快速部署，终端输入：hexo clean && hexo generate && hexo deploy
+点击link就可以访问GitHub Page部署的网站了
+
+7.修改与提交
+同样hexo clean && hexo generate && hexo deploy
+简化版本hexo clean && hexo g && hexo d
+
+
