@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>文档中心 · 内部文档</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f5f5; color: #333; line-height: 1.6; }
+        .header { background: #fff; border-bottom: 1px solid #e0e0e0; padding: 0.75rem 1.5rem; }
+        .header-inner { max-width: 800px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+        .header h1 { margin: 0; font-size: 1.1rem; font-weight: 600; color: #222; }
+        .header-nav { display: flex; gap: 0.75rem; }
+        .header-nav a { font-size: 0.9rem; color: #555; text-decoration: none; padding: 0.35rem 0.75rem; border: 1px solid #ddd; border-radius: 6px; }
+        .header-nav a:hover { background: #f5f5f5; color: #222; border-color: #ccc; }
+        .main { max-width: 800px; margin: 0 auto; padding: 1.5rem; }
+        .card { background: #fff; border-radius: 8px; border: 1px solid #e8e8e8; padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+        .card h2 { margin: 0 0 0.75rem; font-size: 1rem; font-weight: 600; color: #222; }
+        .card p { margin: 0; font-size: 0.9rem; color: #555; }
+        .doc-content { font-family: Consolas, Monaco, monospace; font-size: 0.9rem; background: #f8f9fa; padding: 1rem; border-radius: 6px; border: 1px solid #eee; word-break: break-all; }
+        .doc-body { font-size: 0.9rem; color: #444; padding: 0.5rem 0; line-height: 1.7; white-space: pre-wrap; }
+        .notice { font-size: 0.85rem; color: #888; margin-top: 1rem; }
+        .doc-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-top: 1rem; }
+        .doc-cards a { display: block; padding: 1rem 1.25rem; background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; text-decoration: none; color: #222; font-size: 0.9rem; font-weight: 500; box-shadow: 0 1px 2px rgba(0,0,0,0.04); transition: border-color 0.2s, box-shadow 0.2s; }
+        .doc-cards a:hover { border-color: #0d6efd; box-shadow: 0 2px 8px rgba(13,110,253,0.15); color: #0d6efd; }
+        .doc-cards a .doc-num { display: block; font-size: 0.75rem; color: #888; margin-bottom: 0.35rem; }
+        .footer { max-width: 800px; margin: 0 auto; padding: 1rem 1.5rem; font-size: 0.8rem; color: #999; border-top: 1px solid #eee; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <h1>文档中心</h1>
+            <nav class="header-nav">
+                <a href="/index.php">返回首页</a>
+                <a href="mailto:admin@example.com">联系主管</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+                                    <div class="card">
+                    <h2>近期文档</h2>
+                    <p>点击下方卡片查看内容。</p>
+                    <div class="doc-cards">
+                        <a href="?id=1"><span class="doc-num">1</span>会议纪要</a>
+                        <a href="?id=2"><span class="doc-num">2</span>通知</a>
+                        <a href="?id=3"><span class="doc-num">3</span>内部规范</a>
+                        <a href="?id=5"><span class="doc-num">4</span>备忘</a>
+                        <a href="?id=10"><span class="doc-num">5</span>公告</a>
+                        <a href="?id=7"><span class="doc-num">6</span>周报</a>
+                    </div>
+                </div>
+                        </main>
+
+    <footer class="footer">
+        内部使用 · 请勿外泄
+    </footer>
+</body>
+</html>

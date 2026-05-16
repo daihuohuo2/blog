@@ -1,0 +1,346 @@
+/* ===================================================
+   Lightweight Glass Theme
+   No backdrop-filter, keep scrolling smooth
+   =================================================== */
+
+:root {
+  --glass-surface: rgba(245, 248, 255, 0.50);
+  --glass-surface-strong: rgba(248, 250, 255, 0.68);
+  --glass-stroke: rgba(255, 255, 255, 0.58);
+  --glass-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+  --glass-text: #162033;
+  --glass-text-soft: #4c5a70;
+  --duo-1-a: #1447c9;
+  --duo-1-b: #94b86e;
+  --duo-2-a: #4a428f;
+  --duo-2-b: #d07a70;
+  --duo-3-a: #3c8d82;
+  --duo-3-b: #95684d;
+  --duo-4-a: #be7a5c;
+  --duo-4-b: #f2e7d3;
+  --duo-5-a: #3e4c67;
+  --duo-5-b: #c79ab7;
+}
+
+[data-theme="dark"] {
+  --glass-surface: rgba(19, 24, 38, 0.52);
+  --glass-surface-strong: rgba(18, 22, 34, 0.72);
+  --glass-stroke: rgba(255, 255, 255, 0.10);
+  --glass-shadow: 0 12px 32px rgba(0, 0, 0, 0.30);
+  --glass-text: #eef3ff;
+  --glass-text-soft: #c8d2e4;
+}
+
+/* ---------- Top Header ---------- */
+#page-header {
+  background-color: transparent !important;
+}
+
+#page-header.not-home-page,
+#page-header.post-bg,
+#footer {
+  background-color: transparent !important;
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)) !important;
+}
+
+#page-header.not-home-page::before,
+#page-header.post-bg::before,
+#footer::before {
+  background: linear-gradient(180deg, rgba(10, 15, 30, 0.16), rgba(10, 15, 30, 0.10)) !important;
+}
+
+#nav {
+  background: linear-gradient(180deg, rgba(12, 18, 32, 0.42), rgba(12, 18, 32, 0.18)) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.14) inset !important;
+}
+
+#nav .site-page,
+#nav #toggle-menu,
+#blog-info .site-name,
+#page-site-info #site-title,
+#page-site-info .page-title,
+#page-header #site-subtitle,
+#page-header #site-subtitle span,
+#post-info,
+#post-info a {
+  color: #ffffff !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.60) !important;
+}
+
+/* ---------- Main Glass Panels ---------- */
+.layout > div:first-child:not(.nc),
+#recent-posts .recent-post-item,
+#aside-content .card-widget {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--glass-surface-strong), var(--glass-surface)) !important;
+  border: 1px solid var(--glass-stroke) !important;
+  box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.72) !important;
+}
+
+.layout > div:first-child:not(.nc)::before,
+#recent-posts .recent-post-item::before,
+#aside-content .card-widget::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(125deg, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0.08) 38%, rgba(255, 255, 255, 0.02) 68%);
+}
+
+/* ---------- Text Contrast ---------- */
+.layout > div:first-child:not(.nc),
+.layout > div:first-child:not(.nc) .article-sort,
+.layout > div:first-child:not(.nc) .article-sort-title,
+.layout > div:first-child:not(.nc) .article-sort-item,
+.layout > div:first-child:not(.nc) .article-sort-item-title,
+.layout > div:first-child:not(.nc) .article-sort-item.year,
+.layout > div:first-child:not(.nc) #article-container,
+.layout > div:first-child:not(.nc) #article-container p,
+.layout > div:first-child:not(.nc) #article-container li,
+#recent-posts .recent-post-item,
+#recent-posts .recent-post-item .post-title,
+#recent-posts .recent-post-item .recent-post-info,
+#recent-posts .recent-post-item .content,
+#aside-content .card-widget,
+#aside-content .card-widget .item-headline,
+#aside-content .card-widget .author-info-name,
+#aside-content .card-widget .author-info-description,
+#aside-content .card-widget span,
+#aside-content .card-widget li,
+#footer,
+#footer a {
+  color: var(--glass-text) !important;
+}
+
+.layout > div:first-child:not(.nc) .article-sort-item-time,
+.layout > div:first-child:not(.nc) .post-meta,
+.layout > div:first-child:not(.nc) .post-meta *,
+#recent-posts .recent-post-item .post-meta,
+#recent-posts .recent-post-item .post-meta * {
+  color: var(--glass-text-soft) !important;
+}
+
+.layout > div:first-child:not(.nc) a,
+#recent-posts .recent-post-item a,
+#aside-content .card-widget a {
+  color: #1f88e5 !important;
+}
+
+.layout > div:first-child:not(.nc) a:hover,
+#recent-posts .recent-post-item a:hover,
+#aside-content .card-widget a:hover {
+  color: #0f6bc0 !important;
+}
+
+/* ---------- Unified Link Style ---------- */
+.card-tag-cloud,
+.post-meta__tag-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.card-tag-cloud a,
+.post-meta__tag-list a,
+.category-list-link,
+.card-category-list-link,
+.card-archive-list-link,
+.article-sort-item-title {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 0 0 18px !important;
+  border: 0 !important;
+  border-radius: 0;
+  background: transparent !important;
+  box-shadow: none !important;
+  text-decoration: none !important;
+  color: var(--glass-text) !important;
+  font-weight: 600;
+  font-size: 1.06rem !important;
+  line-height: 1.7;
+  text-shadow: none !important;
+  transition: opacity 0.18s ease;
+}
+
+.card-tag-cloud a::before,
+.post-meta__tag-list a::before,
+.category-list-link::before,
+.card-category-list-link::before,
+.card-archive-list-link::before,
+.article-sort-item-title::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border: 2px solid #46a6ff;
+  border-radius: 50%;
+  background: transparent;
+  opacity: 1;
+  pointer-events: none;
+  transform: translateY(-50%);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-tag-cloud a:hover,
+.post-meta__tag-list a:hover,
+.category-list-link:hover,
+.card-category-list-link:hover,
+.card-archive-list-link:hover,
+.article-sort-item-title:hover {
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--glass-text) !important;
+  opacity: 1;
+  filter: none;
+}
+
+.card-tag-cloud a:hover::before,
+.post-meta__tag-list a:hover::before,
+.category-list-link:hover::before,
+.card-category-list-link:hover::before,
+.card-archive-list-link:hover::before,
+.article-sort-item-title:hover::before {
+  width: 14px;
+  height: 6px;
+  border-radius: 6px;
+  border-color: #ff7a45;
+  background-color: #ff7a45;
+  box-shadow: 0 0 8px rgba(255, 122, 69, 0.6);
+}
+
+.category-list-count,
+.card-category-list-count,
+.card-archive-list-count {
+  color: var(--glass-text-soft) !important;
+}
+
+[data-theme="dark"] .card-tag-cloud a::before,
+[data-theme="dark"] .post-meta__tag-list a::before,
+[data-theme="dark"] .category-list-link::before,
+[data-theme="dark"] .card-category-list-link::before,
+[data-theme="dark"] .card-archive-list-link::before,
+[data-theme="dark"] .article-sort-item-title::before {
+  border-color: #74b7ff;
+}
+
+[data-theme="dark"] .card-tag-cloud a:hover::before,
+[data-theme="dark"] .post-meta__tag-list a:hover::before,
+[data-theme="dark"] .category-list-link:hover::before,
+[data-theme="dark"] .card-category-list-link:hover::before,
+[data-theme="dark"] .card-archive-list-link:hover::before,
+[data-theme="dark"] .article-sort-item-title:hover::before {
+  border-color: #ff9b72;
+  background-color: #ff9b72;
+  box-shadow: 0 0 10px rgba(255, 155, 114, 0.5);
+}
+
+/* ---------- Archive Timeline ---------- */
+.article-sort {
+  margin-left: 0;
+  padding-left: 0;
+  border-left: 0 !important;
+}
+
+.article-sort-title::before,
+.article-sort-item::before,
+.article-sort-item.year::before {
+  display: none !important;
+}
+
+.article-sort-item {
+  margin: 0 0 12px 0 !important;
+  padding-left: 0;
+}
+
+.article-sort-item.no-article-cover {
+  height: auto;
+  min-height: 0;
+}
+
+.article-sort-item-info {
+  padding: 0 !important;
+}
+
+.article-sort-item-time {
+  margin-bottom: 4px;
+  color: var(--glass-text-soft) !important;
+  font-size: 0.92rem !important;
+}
+
+.article-sort-item.year {
+  margin: 8px 0 14px 0 !important;
+  color: var(--glass-text) !important;
+  font-size: 1.18rem !important;
+}
+
+.category-lists > .category-list {
+  padding-left: 0 !important;
+}
+
+.category-lists .category-list-item {
+  list-style: none;
+  margin: 10px 0;
+}
+
+.category-lists .category-list-item::before {
+  display: none !important;
+}
+
+.category-lists .category-list-child {
+  margin: 10px 0 0 14px;
+  padding: 0 0 0 18px !important;
+  border-left: 1px solid rgba(70, 166, 255, 0.28);
+}
+
+.category-lists .category-list-child .category-list-link {
+  font-size: 1rem !important;
+}
+
+.category-lists .category-list-child .category-list-count {
+  margin-left: 6px;
+}
+
+#aside-cat-list .card-category-list.child {
+  margin: 8px 0 0 14px;
+  padding-left: 14px !important;
+  border-left: 1px solid rgba(70, 166, 255, 0.22);
+}
+
+#aside-cat-list .card-category-list.child .card-category-list-link {
+  font-size: 0.98rem !important;
+}
+
+@media (max-width: 768px) {
+  .category-lists .category-list-child {
+    margin-left: 10px;
+    padding-left: 14px !important;
+  }
+
+  #aside-cat-list .card-category-list.child {
+    margin-left: 10px;
+    padding-left: 12px !important;
+  }
+}
+
+.card-category-list-item,
+.card-archive-list-item,
+.category-list-item {
+  list-style: none;
+}
+
+/* override theme hover background for category/archive rows */
+.card-categories ul.card-category-list > .card-category-list-item a:hover,
+.card-archives ul.card-archive-list > .card-archive-list-item a:hover {
+  color: inherit !important;
+  padding-right: 0 !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* ---------- Performance ---------- */

@@ -1,0 +1,19 @@
+HTTP/1.1 302 FOUND
+Server: Werkzeug/3.0.3 Python/3.10.12
+Date: Fri, 08 May 2026 11:19:01 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 199
+Location: /index
+Vary: Cookie
+Set-Cookie: session=eyJfZmxhc2hlcyI6W3siIHQiOlsibWVzc2FnZSIsIlx1OGQyNlx1NTNmN1x1NjIxNlx1NWJjNlx1NzgwMVx1OTUxOVx1OGJlZiJdfV19.af3GpQ._hU8-tSUXBWvJwTrXYI2i9egTGs; HttpOnly; Path=/
+Connection: close
+
+HTTP/1.1 200 OK
+Server: Werkzeug/3.0.3 Python/3.10.12
+Date: Fri, 08 May 2026 11:19:01 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 2729
+Vary: Cookie
+Set-Cookie: session=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; HttpOnly; Path=/
+Connection: close
+

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>信息安全实验一</title>
+    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/static/index.css">
+</head>
+
+<body>
+    <!-- login/register container -->
+
+    <div class="container">
+        <!-- register -->
+        <div class="form-container sign-up-container">
+            <div class="form">
+                <h2>sign up</h2>
+                <form name="form" method="post" action="/register">
+                    <input type="text" name="username" id="username" placeholder="Student No...">
+                    <input type="name" name="name" id="name" placeholder="Name...">
+                    <input type="password" name="password" id="password" placeholder="Password...">
+                    <button class="signUp" >sign up</button>
+                </form>
+            </div>
+        </div>
+        <!-- login -->
+        <div class="form-container sign-in-container">
+            <div class="form">
+                <h2>sign in</h2>
+                <form name="form" method="post" action="/login">
+                     <input type="username" name="username" id="username" placeholder="Student No...">
+                    <input type="password" name="password" id="password" placeholder="Password...">
+                    
+                     <div class="alert alert-warning">
+                    <button type="button" class="close" data-dismiss="alert">账号或密码错误</button>
+                    </div>
+                    
+                    <input type="submit" class="signIn" value="sign in"></input>
+                </form>
+            </div>
+        </div>
+        <!-- overlay container -->
+        <div class="overlay_container">
+            <div class="overlay">
+                <!-- overlay left -->
+                <div class="overlay_panel overlay_left_container">
+                    <h2>快来登录</h2>
+                    <p>输入正确密码就可以完成实验了</p>
+                    <button id="sign-in">sign in</button>
+                </div>
+                <!-- overlay right -->
+                <div class="overlay_panel overlay_right_container">
+                    <h2>Hey man!</h2>
+                    <p>注册账号加入我们吧，务必实名以方便实验检查</p>
+                    <button id="sign-up">sign up</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="/static/index.js"></script>
+</body>
+<!--我们的密码在/static/passwd.txt中-->
+</html>

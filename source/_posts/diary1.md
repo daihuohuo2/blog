@@ -5,6 +5,7 @@ categories:
   - 日记
 tags:
   - 闲谈小记
+sticky: 0
 ---
 
 ## blog创建
