@@ -1,0 +1,262 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><script async src="https://www.googletagmanager.com/gtag/js?id=G-81X7H81C1C"></script><script>window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+
+gtag('config', 'G-81X7H81C1C');
+
+</script><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>DAIHUOHUO - blog of daihuohuo</title><meta name="author" content="daihuohuo2"><meta name="copyright" content="daihuohuo2"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta property="og:type" content="website">
+<meta property="og:title" content="DAIHUOHUO">
+<meta property="og:url" content="https://daihuohuo2.github.io/myblog/page/3/index.html">
+<meta property="og:site_name" content="DAIHUOHUO">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/193844570?v=4">
+<meta property="article:author" content="daihuohuo2">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://avatars.githubusercontent.com/u/193844570?v=4"><script type="application/ld+json"></script><link rel="shortcut icon" href="/myblog/img/favicon.png"><link rel="canonical" href="https://daihuohuo2.github.io/myblog/page/3/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/myblog/css/index.css?v=5.5.5-b1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-8X1R7XH81C"></script><script>window.dataLayer = window.dataLayer || []
+function gtag(){dataLayer.push(arguments)}
+gtag('js', new Date())
+gtag('config', 'G-8X1R7XH81C')
+btf.addGlobalFn('pjaxComplete', () => {
+  gtag('config', 'G-8X1R7XH81C', {'page_path': window.location.pathname})
+}, 'google_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/myblog/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'DAIHUOHUO',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'home'
+}</script><link rel="stylesheet" href="/myblog/css/glass.css"><!-- hexo injector head_end start --><style>
+.ipynb-notebook{--ipynb-border:rgba(127,127,127,.22);--ipynb-muted:rgba(127,127,127,.72);margin:1rem 0 0}
+.ipynb-cell{margin:1.05rem 0}
+.ipynb-markdown-cell>:first-child{margin-top:0}
+.ipynb-markdown-cell>:last-child{margin-bottom:0}
+.ipynb-input{display:grid;grid-template-columns:5.8rem minmax(0,1fr);gap:.8rem;align-items:start}
+.ipynb-input-prompt{color:var(--ipynb-muted);font-family:Consolas,Monaco,monospace;font-size:.85rem;line-height:1.7;text-align:right;white-space:nowrap}
+.ipynb-code-body{min-width:0}
+.ipynb-code-body figure.highlight{margin:0}
+.ipynb-outputs{margin:.55rem 0 0 6.6rem}
+.ipynb-output{margin:.45rem 0;padding:.75rem .9rem;border:1px solid var(--ipynb-border);border-radius:6px;overflow:auto;white-space:pre-wrap;font-family:Consolas,Monaco,monospace;font-size:.9rem;line-height:1.55}
+.ipynb-output.stderr,.ipynb-output.error{border-color:rgba(220,38,38,.35);background:rgba(220,38,38,.06)}
+.ipynb-rich-output{overflow:auto}
+.ipynb-image-output{display:block;max-width:100%;height:auto;margin:.65rem 0}
+.ipynb-raw-cell pre{padding:.75rem .9rem;border:1px dashed var(--ipynb-border);border-radius:6px;overflow:auto}
+@media (max-width:640px){.ipynb-input{grid-template-columns:1fr}.ipynb-input-prompt{text-align:left}.ipynb-outputs{margin-left:0}}
+</style><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.1"></head><body><div class="bg-animation" id="web_bg" style="background-image: url(https://haowallpaper.com/link/common/file/previewFileImg/15680526683050304);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><a href="https://github.com/daihuohuo2" target="_blank" rel="noopener noreferrer"><img src="https://avatars.githubusercontent.com/u/193844570?v=4" onerror="this.onerror=null;this.src='/myblog/img/friend_404.gif'" alt="avatar"/></a></div><div class="author-info-name text-center"><a href="https://github.com/daihuohuo2" target="_blank" rel="noopener noreferrer">daihuohuo2</a></div><div class="site-data text-center"><a href="/myblog/archives/"><div class="headline">文章</div><div class="length-num">31</div></a><a href="/myblog/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/myblog/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/myblog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="full_page" id="page-header" style="background-image: url(https://haowallpaper.com/link/common/file/previewFileImg/15680526683050304);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/myblog/"><span class="site-name">DAIHUOHUO</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/myblog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="site-info"><h1 id="site-title">DAIHUOHUO</h1><div id="site-subtitle"><span id="subtitle"></span></div><div id="site_social_icons"><a class="social-icon" href="https://github.com/daihuohuo2" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div id="scroll-down"><i class="fas fa-angle-down scroll-down-effects"></i></div></header><main class="layout" id="content-inner"><div class="recent-posts nc" id="recent-posts"><div class="recent-post-items"><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/myblog/2026/04/28/diary6/" title="普通的周二">普通的周二</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-04-28T10:44:59.000Z" title="发表于 2026-04-28 18:44:59">2026-04-28</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/myblog/categories/%E6%97%A5%E8%AE%B0/">日记</a></span></div><div class="content">学习继续ctf，gogogoJava课面向对象学完了无线网卡到货了，晚上去拿一下 </div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/myblog/2026/04/27/diary5/" title="普通的周一">普通的周一</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-04-27T04:57:46.000Z" title="发表于 2026-04-27 12:57:46">2026-04-27</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/myblog/categories/%E6%97%A5%E8%AE%B0/">日记</a></span></div><div class="content">早上去升旗了，很凉快忘记有中国共产党课了，下次课要去补一个假条做一些操作系统的实验之前在wsl里面配置好的rust环境和qemu模拟器不能用了，不知道为什么输入make run之后启动的qemu会卡住，查阅资料之后发现可能是版本不兼容的问题，这实验内容也是的拿2024年的教程来糊弄学生，2025年的教程都是我自己找的，但是里面的rust开发环境和qemu版本都很老了但是默认下载的是最新的，导致了两个版本不兼容但是现在我都交给ai改了，自己去干别的事情了全权接管，随便删，反正wsl虚拟机里面也没什么东西  晚上回来的时候伞被偷了，气死我了 温习了前端三件套 </div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/myblog/2026/04/26/%E5%BC%80%E5%8F%91%E8%80%85%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" title="开发者工具">开发者工具</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-04-26T02:57:12.000Z" title="发表于 2026-04-26 10:57:12">2026-04-26</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/myblog/categories/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/">网络安全</a></span></div><div class="content">开发者工具基础 打开方式     方式 操作    快捷键 F12 或 Ctrl + Shift + I   直接打开 Console Ctrl + Shift + J   元素选择器 Ctrl + Shift + C   右键审查 右键页面 → “检查”（Inspect）    CTF 中第一步永远是：按 F12。   view-source:  (1)view-source: 是浏览器支持的一种 URI 方案（URI Scheme），用于直接查看网页的原始 HTML 源代码。 浏览器收到 HTML 后通常会进行渲染（把代码变成你看到的网页），而 view-source: 会让浏览器跳过渲染，直接把原始代码以文本形式展示出来。  (2)基本用法 在浏览器地址栏中输入： view-source:https://www.example.com 浏览器就会显示该 URL 对应的原始 HTML 源代码，而不是渲染后的页面。  (3)它不是网络协议 view-source: 虽然长得像 http:、https:，但它不是网络传输协议。    对比 http: &#x2F; https: ...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/myblog/2026/04/26/diary4/" title="普通的周日">普通的周日</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-04-26T02:04:27.000Z" title="发表于 2026-04-26 10:04:27">2026-04-26</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/myblog/categories/%E6%97%A5%E8%AE%B0/">日记</a></span></div><div class="content">今天下午要训练早上学点ctf晚上早睡了，第二天要升旗 </div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/myblog/2026/04/25/diary3/" title="周六trea校园行活动">周六trea校园行活动</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-04-25T00:53:05.000Z" title="发表于 2026-04-25 08:53:05">2026-04-25</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/myblog/categories/%E6%97%A5%E8%AE%B0/">日记</a></span></div><div class="content">学习早上：今天早上有一个蓝桥杯比赛，啥都不会，早知道不报名了，浪费我300块大洋下午有一个trae 晚上：蓝桥杯用ai写了6题，总共12题，ai还是太强了蓝桥杯是不是不管ai啊，但是有录屏不过我感觉大多数人都用了ai吧，不然咋可能才开始一两分钟就有人把一个解码题做出来了，写脚本也要个三四分钟吧 下午那个trea校园行活动，有一点水果，我把安卓开发平台下好了，以后可以开发了，我搞了一个安卓app本来要准备去路演的，但是在提交的最后几分钟太投入了，导致我没看到群里面的报名路演的消息，痛失拿奖的机会如果报上应该还是可以拿个奖的，因为我的是一个app，别人的就只是一个web，难度不一样，可惜了 送了一个国际版10$的pro会员，还不错 </div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/myblog/2026/04/24/%E5%B8%B8%E8%A7%81%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85/" title="ctf常见工具安装(kali)">ctf常见工具安装(kali)</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-04-24T05:29:15.000Z" title="发表于 2026-04-24 13:29:15">2026-04-24</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/myblog/categories/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/">网络安全</a></span></div><div class="content">dirsearch 目录爆破工具(kali)dirsearch 是一个 Web 目录和文件扫描工具，用于发现目标网站中隐藏的目录和文件   1234567891011121314151617181920212223# 最简单的用法dirsearch -u http://目标网站# 指定后缀名dirsearch -u http://目标网站 -e php,html,js# 指定字典dirsearch -u http://目标网站 -w /usr/share/wordlists/dirb/common.txt# 排除状态码dirsearch -u http://目标网站 --exclude-status 404# 只显示 200 状态码dirsearch -u http://目标网站 --include-status 200# 递归扫描dirsearch -u http://目标网站 -r# 设置线程数（加快速度）dirsearch -u http://目标网站 -t 50# 使用代理dirsearch -u http://目标网站 --proxy http://127.0.0.1:...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/myblog/2026/04/24/diary2/" title="开始学习ctf">开始学习ctf</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-04-24T04:16:22.000Z" title="发表于 2026-04-24 12:16:22">2026-04-24</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/myblog/categories/%E6%97%A5%E8%AE%B0/">日记</a></span></div><div class="content">学习今天开始学习ctf了，买了499的基础课，不买的话感觉网上的免费资料都太分散了，不好学下午有一节体育课网上继续学习了ctf的基础知识，但是在知心馆网不好，决定kali暴力破解WiFi但是需要无线网卡这种硬件，美团下单了一个，用了以后发现里面的驱动太老了，无法支持kali的6.19的内核准备第二天把kali装到u盘里面实现直接在主机里面使用kali，但是那样我的无线网卡不就白买了吗 </div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/myblog/2026/04/23/http/" title="http基础知识">http基础知识</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-04-23T14:32:38.000Z" title="发表于 2026-04-23 22:32:38">2026-04-23</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/myblog/categories/Web%E5%9F%BA%E7%A1%80/">Web基础</a></span></div><div class="content">一、HTTP 是什么HTTP（HyperText Transfer Protocol）是超文本传输协议，用于浏览器和服务器之间的通信。 二、HTTP 特点   特点 说明    无状态 服务器不记录之前的请求，每次请求独立   无连接 每次请求建立新连接（HTTP&#x2F;1.0）   基于TCP 底层使用TCP协议，默认端口80   明文传输 数据不加密（HTTPS才加密）   三、URL 结构http://www.example.com:80/path/page.html?name=value#section| 协议 | 主机名 | 端口 | 路径 | 参数 | 锚点 | 四、HTTP 请求方法   方法 说明 用途    GET 获取资源，参数在URL中 最常用，获取页面   POST 提交数据，参数在请求体中 提交表单、登录   PUT 上传文件 更新资源   DELETE 删除资源 删除数据   HEAD 只获取响应头 信息收集   OPTIONS 查询服务器支持的方法 探测可用方法   五、HTTP 请求格式HTTP 请求格式包含了请求的各个部分，包括请求行、请求头...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/myblog/2026/04/23/git/" title="git基础操作">git基础操作</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-04-23T11:25:59.000Z" title="发表于 2026-04-23 19:25:59">2026-04-23</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/myblog/categories/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/">开发工具</a></span></div><div class="content">Git 基础指令速查手册一、配置123456789# 设置用户名git config --global user.name &quot;你的名字&quot;# 设置邮箱git config --global user.email &quot;你的邮箱&quot;# 查看配置git config --list  二.初始化仓库123456# 初始化仓库git init# 克隆远程仓库git clone https://github.com/用户名/仓库名.git  基本操作123456789101112131415161718192021# 查看状态git status# 添加指定文件到暂存区git add 文件名# 添加所有文件到暂存区git add .# 提交git commit -m &quot;提交说明&quot;# 查看修改内容git diff# 查看提交历史git log# 查看提交历史（简洁版）git log --oneline 四、分支操作123456789101112131415161718# 查看所有分支git branch# 创建分支git branch 新分...</div></div></div><div class="recent-post-item"><div class="recent-post-info no-cover"><a class="article-title" href="/myblog/2026/04/23/hexo/" title="blog搭建流程">blog搭建流程</a><div class="article-meta-wrap"><span class="post-meta-date"><i class="far fa-calendar-alt"></i><span class="article-meta-label">发表于</span><time datetime="2026-04-23T07:00:46.000Z" title="发表于 2026-04-23 15:00:46">2026-04-23</time></span><span class="article-meta"><span class="article-meta-separator">|</span><i class="fas fa-inbox"></i><a class="article-meta__categories" href="/myblog/categories/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/">博客搭建</a></span></div><div class="content">记录blog搭建流程防止自己忘记了 一.配置环境不讲了 只要配置好hexo和node就行，网上有详细教程 二.如何启动打开终端cd到mybloghexo server启动点击link(一个静态网页)ctrl+c终止服务如果有更新hexo clean(清除缓存) 三.配置更改myblog\_config.yml里面可以改一下配置，之后用到再补充吧 四.导航界面目前有三个：归档(按时间分类)，标签(按标签分类)，分类(按类型分类)分别在这三个文件夹下面的md文件里面修改  之后写文章的时候可以在这个三个里面添加分类，会自动进行分类 五.hexo常见问题(1)不显示md里面的图片文件因为md里面的图片是本地路径，hexo生成网页的时候找不到图片解决方法:打开C:\Users\20694\Desktop\myblog\_config.yml找到post_asset_folder: true并改正只用在post下面新建一个和md同名的文件夹，把图片资源存里就行并且要是用这样的路径&#123;% asset_img 1.png %&#125; 六.部署到GitHub Page新建仓库修改ur...</div></div></div></div><nav id="pagination"><div class="pagination"><a class="extend prev" rel="prev" href="/myblog/page/2/#content-inner"><i class="fas fa-chevron-left fa-fw"></i></a><a class="page-number" href="/myblog/">1</a><a class="page-number" href="/myblog/page/2/#content-inner">2</a><span class="page-number current">3</span><a class="page-number" href="/myblog/page/4/#content-inner">4</a><a class="extend next" rel="next" href="/myblog/page/4/#content-inner"><i class="fas fa-chevron-right fa-fw"></i></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><a href="https://github.com/daihuohuo2" target="_blank" rel="noopener noreferrer"><img src="https://avatars.githubusercontent.com/u/193844570?v=4" onerror="this.onerror=null;this.src='/myblog/img/friend_404.gif'" alt="avatar"/></a></div><div class="author-info-name"><a href="https://github.com/daihuohuo2" target="_blank" rel="noopener noreferrer">daihuohuo2</a></div><div class="author-info-description"></div><div class="site-data"><a href="/myblog/archives/"><div class="headline">文章</div><div class="length-num">31</div></a><a href="/myblog/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/myblog/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/daihuohuo2"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/daihuohuo2" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/myblog/2026/06/01/adversarial-attacks-pytorch-%E5%A4%8D%E7%9B%98/" title="adversarial-attacks-pytorch 项目复盘">adversarial-attacks-pytorch 项目复盘</a><time datetime="2026-06-01T11:47:08.000Z" title="发表于 2026-06-01 19:47:08">2026-06-01</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/myblog/2026/05/30/diray12/" title="凉快的周六">凉快的周六</a><time datetime="2026-05-30T12:51:28.000Z" title="发表于 2026-05-30 20:51:28">2026-05-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/myblog/2026/05/26/PyTorch%E5%AE%98%E6%96%B9%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B%E5%A4%8D%E5%88%BB%E6%8C%87%E5%8D%97/" title="PyTorch 官方基础教程复刻指南">PyTorch 官方基础教程复刻指南</a><time datetime="2026-05-26T07:30:00.000Z" title="发表于 2026-05-26 15:30:00">2026-05-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/myblog/2026/05/25/csharp%E5%9F%BA%E7%A1%80/" title="C# 基础">C# 基础</a><time datetime="2026-05-25T07:00:00.000Z" title="发表于 2026-05-25 15:00:00">2026-05-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/myblog/2026/05/24/diray11/" title="这段时间">这段时间</a><time datetime="2026-05-24T13:39:56.000Z" title="发表于 2026-05-24 21:39:56">2026-05-24</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            <a class="card-more-btn" href="/myblog/categories/" title="查看更多">
+      <i class="fas fa-angle-right"></i></a>
+          </div>
+          <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/myblog/categories/Web%E5%9F%BA%E7%A1%80/"><span class="card-category-list-name">Web基础</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/myblog/categories/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/"><span class="card-category-list-name">博客搭建</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/myblog/categories/%E5%AD%A6%E4%B9%A0/"><span class="card-category-list-name">学习</span><span class="card-category-list-count">1</span></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/myblog/categories/%E5%AD%A6%E4%B9%A0/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"><span class="card-category-list-name">机器学习</span><span class="card-category-list-count">1</span></a></li></ul></li><li class="card-category-list-item "><a class="card-category-list-link" href="/myblog/categories/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/"><span class="card-category-list-name">开发工具</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/myblog/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/"><span class="card-category-list-name">操作系统</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/myblog/categories/%E6%97%A5%E8%AE%B0/"><span class="card-category-list-name">日记</span><span class="card-category-list-count">12</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/myblog/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"><span class="card-category-list-name">机器学习</span><span class="card-category-list-count">3</span></a></li>
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/myblog/tags/rCore/" style="font-size: 1.1em; color: #999">rCore</a> <a href="/myblog/tags/HTTP/" style="font-size: 1.1em; color: #999">HTTP</a> <a href="/myblog/tags/Conda/" style="font-size: 1.1em; color: #999">Conda</a> <a href="/myblog/tags/Hexo/" style="font-size: 1.1em; color: #999">Hexo</a> <a href="/myblog/tags/Rust/" style="font-size: 1.1em; color: #999">Rust</a> <a href="/myblog/tags/UDP/" style="font-size: 1.1em; color: #999">UDP</a> <a href="/myblog/tags/Linux/" style="font-size: 1.1em; color: #999">Linux</a> <a href="/myblog/tags/%E7%BC%96%E8%AF%91/" style="font-size: 1.1em; color: #999">编译</a> <a href="/myblog/tags/WiFi/" style="font-size: 1.1em; color: #999">WiFi</a> <a href="/myblog/tags/exe%E6%89%93%E5%8C%85/" style="font-size: 1.1em; color: #999">exe打包</a> <a href="/myblog/tags/Web%E5%AE%89%E5%85%A8/" style="font-size: 1.2em; color: #999da3">Web安全</a> <a href="/myblog/tags/Kali/" style="font-size: 1.2em; color: #999da3">Kali</a> <a href="/myblog/tags/iptables/" style="font-size: 1.1em; color: #999">iptables</a> <a href="/myblog/tags/%E9%98%B2%E7%81%AB%E5%A2%99/" style="font-size: 1.1em; color: #999">防火墙</a> <a href="/myblog/tags/Windows-Forms/" style="font-size: 1.1em; color: #999">Windows Forms</a> <a href="/myblog/tags/%E6%97%A0%E7%BA%BF%E5%AE%89%E5%85%A8/" style="font-size: 1.1em; color: #999">无线安全</a> <a href="/myblog/tags/JavaScript/" style="font-size: 1.1em; color: #999">JavaScript</a> <a href="/myblog/tags/Windows/" style="font-size: 1.1em; color: #999">Windows</a> <a href="/myblog/tags/%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/" style="font-size: 1.1em; color: #999">版本控制</a> <a href="/myblog/tags/NET/" style="font-size: 1.1em; color: #999">.NET</a> <a href="/myblog/tags/%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" style="font-size: 1.1em; color: #999">环境配置</a> <a href="/myblog/tags/PyTorch/" style="font-size: 1.4em; color: #99a5b6">PyTorch</a> <a href="/myblog/tags/%E5%90%8E%E7%AB%AF/" style="font-size: 1.1em; color: #999">后端</a> <a href="/myblog/tags/Web%E5%9F%BA%E7%A1%80/" style="font-size: 1.1em; color: #999">Web基础</a> <a href="/myblog/tags/CSharp/" style="font-size: 1.2em; color: #999da3">CSharp</a> <a href="/myblog/tags/%E5%AE%9E%E9%AA%8C%E5%A4%8D%E7%9B%98/" style="font-size: 1.1em; color: #999">实验复盘</a> <a href="/myblog/tags/Burp-Suite/" style="font-size: 1.1em; color: #999">Burp Suite</a> <a href="/myblog/tags/robots-txt/" style="font-size: 1.1em; color: #999">robots.txt</a> <a href="/myblog/tags/torchattacks/" style="font-size: 1.1em; color: #999">torchattacks</a> <a href="/myblog/tags/Web%E5%B7%A5%E5%85%B7/" style="font-size: 1.1em; color: #999">Web工具</a> <a href="/myblog/tags/CTF/" style="font-size: 1.3em; color: #99a1ac">CTF</a> <a href="/myblog/tags/DevTools/" style="font-size: 1.1em; color: #999">DevTools</a> <a href="/myblog/tags/%E5%AF%B9%E6%8A%97%E6%94%BB%E5%87%BB/" style="font-size: 1.1em; color: #999">对抗攻击</a> <a href="/myblog/tags/%E9%97%B2%E8%B0%88%E5%B0%8F%E8%AE%B0/" style="font-size: 1.5em; color: #99a9bf">闲谈小记</a> <a href="/myblog/tags/%E5%89%8D%E7%AB%AF/" style="font-size: 1.1em; color: #999">前端</a> <a href="/myblog/tags/%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83/" style="font-size: 1.1em; color: #999">模型训练</a> <a href="/myblog/tags/%E6%BA%90%E7%A0%81%E6%B3%84%E9%9C%B2/" style="font-size: 1.1em; color: #999">源码泄露</a> <a href="/myblog/tags/PHP/" style="font-size: 1.1em; color: #999">PHP</a> <a href="/myblog/tags/Git/" style="font-size: 1.1em; color: #999">Git</a> <a href="/myblog/tags/%E8%BE%83%E9%9A%BE%E7%9F%A5%E8%AF%86/" style="font-size: 1.1em; color: #999">较难知识</a></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>归档</span>
+      
+    </div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/myblog/archives/2026/06/">
+            <span class="card-archive-list-date">
+              六月 2026
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/myblog/archives/2026/05/">
+            <span class="card-archive-list-date">
+              五月 2026
+            </span>
+            <span class="card-archive-list-count">17</span>
+          </a>
+        </li>
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/myblog/archives/2026/04/">
+            <span class="card-archive-list-date">
+              四月 2026
+            </span>
+            <span class="card-archive-list-count">13</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">31</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-06-01T12:04:20.341Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By daihuohuo2</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.5-b1</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/myblog/js/utils.js?v=5.5.5-b1"></script><script src="/myblog/js/main.js?v=5.5.5-b1"></script><div class="js-pjax"><script>window.typedJSFn = {
+  init: str => {
+    window.typed = new Typed('#subtitle', Object.assign({
+      strings: str,
+      startDelay: 300,
+      typeSpeed: 150,
+      loop: true,
+      backSpeed: 50,
+    }, {"typeSpeed":100,"backSpeed":0,"startDelay":500,"backDelay":1000000,"loop":false,"showCursor":true}))
+  },
+  run: subtitleType => {
+    if (true) {
+      if (typeof Typed === 'function') {
+        subtitleType()
+      } else {
+        btf.getScript('https://cdn.jsdelivr.net/npm/typed.js@3.0.0/dist/typed.umd.min.js').then(subtitleType)
+      }
+    } else {
+      subtitleType()
+    }
+  },
+  processSubtitle: (content, extraContents = []) => {
+    if (true) {
+      const sub = ["Welcome to daihuohuo's blog| 一个安全学习者的博客"].slice()
+
+      if (extraContents.length > 0) {
+        sub.unshift(...extraContents)
+      }
+
+      if (typeof content === 'string') {
+        sub.unshift(content)
+      } else if (Array.isArray(content)) {
+        sub.unshift(...content)
+      }
+
+      sub.length > 0 && typedJSFn.init(sub)
+    } else {
+      document.getElementById('subtitle').textContent = typeof content === 'string' ? content :
+        (Array.isArray(content) && content.length > 0 ? content[0] : '')
+    }
+  }
+}
+btf.addGlobalFn('pjaxSendOnce', () => { typed.destroy() }, 'typedDestroy')
+</script><script>function subtitleType () {
+  typedJSFn.processSubtitle(["Welcome to daihuohuo's blog| 一个安全学习者的博客"])
+}
+typedJSFn.run(subtitleType)</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

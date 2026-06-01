@@ -1,0 +1,710 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><script async src="https://www.googletagmanager.com/gtag/js?id=G-81X7H81C1C"></script><script>window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+
+gtag('config', 'G-81X7H81C1C');
+
+</script><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>adversarial-attacks-pytorch 项目复盘 | DAIHUOHUO</title><meta name="author" content="daihuohuo2"><meta name="copyright" content="daihuohuo2"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="adversarial-attacks-pytorch 项目复盘项目地址：Harry24k&#x2F;adversarial-attacks-pytorch 本文按“从零跑通一次攻击实验”的顺序整理，适合复盘 torchattacks 这个项目的使用流程、核心 API、demo 逻辑和源码运行机制。 1. 项目定位adversarial-attacks-pytorch 对外提供的包名是 torch">
+<meta property="og:type" content="article">
+<meta property="og:title" content="adversarial-attacks-pytorch 项目复盘">
+<meta property="og:url" content="https://daihuohuo2.github.io/myblog/2026/06/01/adversarial-attacks-pytorch-%E5%A4%8D%E7%9B%98/index.html">
+<meta property="og:site_name" content="DAIHUOHUO">
+<meta property="og:description" content="adversarial-attacks-pytorch 项目复盘项目地址：Harry24k&#x2F;adversarial-attacks-pytorch 本文按“从零跑通一次攻击实验”的顺序整理，适合复盘 torchattacks 这个项目的使用流程、核心 API、demo 逻辑和源码运行机制。 1. 项目定位adversarial-attacks-pytorch 对外提供的包名是 torch">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/193844570?v=4">
+<meta property="article:published_time" content="2026-06-01T11:47:08.000Z">
+<meta property="article:modified_time" content="2026-06-01T12:00:41.337Z">
+<meta property="article:author" content="daihuohuo2">
+<meta property="article:tag" content="PyTorch">
+<meta property="article:tag" content="torchattacks">
+<meta property="article:tag" content="对抗攻击">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://avatars.githubusercontent.com/u/193844570?v=4"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "adversarial-attacks-pytorch 项目复盘",
+  "url": "https://daihuohuo2.github.io/myblog/2026/06/01/adversarial-attacks-pytorch-%E5%A4%8D%E7%9B%98/",
+  "image": "https://avatars.githubusercontent.com/u/193844570?v=4",
+  "datePublished": "2026-06-01T11:47:08.000Z",
+  "dateModified": "2026-06-01T12:00:41.337Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "daihuohuo2",
+      "url": "https://github.com/daihuohuo2"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/myblog/img/favicon.png"><link rel="canonical" href="https://daihuohuo2.github.io/myblog/2026/06/01/adversarial-attacks-pytorch-%E5%A4%8D%E7%9B%98/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/myblog/css/index.css?v=5.5.5-b1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-8X1R7XH81C"></script><script>window.dataLayer = window.dataLayer || []
+function gtag(){dataLayer.push(arguments)}
+gtag('js', new Date())
+gtag('config', 'G-8X1R7XH81C')
+btf.addGlobalFn('pjaxComplete', () => {
+  gtag('config', 'G-8X1R7XH81C', {'page_path': window.location.pathname})
+}, 'google_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/myblog/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'adversarial-attacks-pytorch 项目复盘',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/myblog/css/glass.css"><!-- hexo injector head_end start --><style>
+.ipynb-notebook{--ipynb-border:rgba(127,127,127,.22);--ipynb-muted:rgba(127,127,127,.72);margin:1rem 0 0}
+.ipynb-cell{margin:1.05rem 0}
+.ipynb-markdown-cell>:first-child{margin-top:0}
+.ipynb-markdown-cell>:last-child{margin-bottom:0}
+.ipynb-input{display:grid;grid-template-columns:5.8rem minmax(0,1fr);gap:.8rem;align-items:start}
+.ipynb-input-prompt{color:var(--ipynb-muted);font-family:Consolas,Monaco,monospace;font-size:.85rem;line-height:1.7;text-align:right;white-space:nowrap}
+.ipynb-code-body{min-width:0}
+.ipynb-code-body figure.highlight{margin:0}
+.ipynb-outputs{margin:.55rem 0 0 6.6rem}
+.ipynb-output{margin:.45rem 0;padding:.75rem .9rem;border:1px solid var(--ipynb-border);border-radius:6px;overflow:auto;white-space:pre-wrap;font-family:Consolas,Monaco,monospace;font-size:.9rem;line-height:1.55}
+.ipynb-output.stderr,.ipynb-output.error{border-color:rgba(220,38,38,.35);background:rgba(220,38,38,.06)}
+.ipynb-rich-output{overflow:auto}
+.ipynb-image-output{display:block;max-width:100%;height:auto;margin:.65rem 0}
+.ipynb-raw-cell pre{padding:.75rem .9rem;border:1px dashed var(--ipynb-border);border-radius:6px;overflow:auto}
+@media (max-width:640px){.ipynb-input{grid-template-columns:1fr}.ipynb-input-prompt{text-align:left}.ipynb-outputs{margin-left:0}}
+</style><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.1"></head><body><div class="bg-animation" id="web_bg" style="background-image: url(https://haowallpaper.com/link/common/file/previewFileImg/15680526683050304);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><a href="https://github.com/daihuohuo2" target="_blank" rel="noopener noreferrer"><img src="https://avatars.githubusercontent.com/u/193844570?v=4" onerror="this.onerror=null;this.src='/myblog/img/friend_404.gif'" alt="avatar"/></a></div><div class="author-info-name text-center"><a href="https://github.com/daihuohuo2" target="_blank" rel="noopener noreferrer">daihuohuo2</a></div><div class="site-data text-center"><a href="/myblog/archives/"><div class="headline">文章</div><div class="length-num">31</div></a><a href="/myblog/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/myblog/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/myblog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/myblog/"><span class="site-name">DAIHUOHUO</span></a><a class="nav-page-title" href="/myblog/"><span class="site-name">adversarial-attacks-pytorch 项目复盘</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/myblog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">adversarial-attacks-pytorch 项目复盘</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-06-01T11:47:08.000Z" title="发表于 2026-06-01 19:47:08">2026-06-01</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-06-01T12:00:41.337Z" title="更新于 2026-06-01 20:00:41">2026-06-01</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/myblog/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="adversarial-attacks-pytorch-项目复盘"><a href="#adversarial-attacks-pytorch-项目复盘" class="headerlink" title="adversarial-attacks-pytorch 项目复盘"></a>adversarial-attacks-pytorch 项目复盘</h1><p>项目地址：<a target="_blank" rel="noopener" href="https://github.com/Harry24k/adversarial-attacks-pytorch">Harry24k&#x2F;adversarial-attacks-pytorch</a></p>
+<p>本文按“从零跑通一次攻击实验”的顺序整理，适合复盘 <code>torchattacks</code> 这个项目的使用流程、核心 API、demo 逻辑和源码运行机制。</p>
+<h2 id="1-项目定位"><a href="#1-项目定位" class="headerlink" title="1. 项目定位"></a>1. 项目定位</h2><p><code>adversarial-attacks-pytorch</code> 对外提供的包名是 <code>torchattacks</code>。它是一个 PyTorch 对抗攻击库，用来为图像分类模型生成 adversarial examples，即对抗样本。</p>
+<p>它的设计目标是：</p>
+<ul>
+<li>用 PyTorch 风格的接口调用攻击算法。</li>
+<li>输入模型、原始图片和标签，输出对抗图片。</li>
+<li>支持常见白盒攻击、黑盒攻击、目标攻击、迁移攻击、多攻击组合。</li>
+<li>支持保存攻击后的数据，再加载到另一个模型上做鲁棒性评估。</li>
+</ul>
+<p>最小调用形式如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torchattacks</span><br><span class="line"></span><br><span class="line">atk = torchattacks.PGD(model, eps=<span class="number">8</span>/<span class="number">255</span>, alpha=<span class="number">2</span>/<span class="number">255</span>, steps=<span class="number">4</span>)</span><br><span class="line">adv_images = atk(images, labels)</span><br></pre></td></tr></table></figure>
+
+<p>这段代码表达的是：对 <code>model</code> 使用 PGD 攻击，在扰动半径 <code>eps=8/255</code> 内，按步长 <code>alpha=2/255</code> 迭代 4 步，生成 <code>adv_images</code>。</p>
+<h2 id="2-环境准备"><a href="#2-环境准备" class="headerlink" title="2. 环境准备"></a>2. 环境准备</h2><h3 id="2-1-官方要求"><a href="#2-1-官方要求" class="headerlink" title="2.1 官方要求"></a>2.1 官方要求</h3><p>README 中给出的要求是：</p>
+<ul>
+<li>Python &gt;&#x3D; 3.6</li>
+<li>PyTorch &gt;&#x3D; 1.4.0</li>
+</ul>
+<p>如果要复现 demo，还经常需要：</p>
+<ul>
+<li><code>torchvision</code></li>
+<li><code>robustbench</code></li>
+<li><code>matplotlib</code></li>
+<li><code>numpy</code></li>
+</ul>
+<h3 id="2-2-安装方式"><a href="#2-2-安装方式" class="headerlink" title="2.2 安装方式"></a>2.2 安装方式</h3><p>方式一：直接安装 PyPI 包。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install torchattacks</span><br></pre></td></tr></table></figure>
+
+<p>方式二：从 GitHub 安装最新版。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install git+https://github.com/Harry24k/adversarial-attacks-pytorch.git</span><br></pre></td></tr></table></figure>
+
+<p>方式三：克隆源码并以 editable 模式安装。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/Harry24k/adversarial-attacks-pytorch.git</span><br><span class="line"><span class="built_in">cd</span> adversarial-attacks-pytorch</span><br><span class="line">pip install -e .</span><br></pre></td></tr></table></figure>
+
+<p>复盘源码时推荐第三种，因为可以直接看 <code>torchattacks/attack.py</code> 和 <code>torchattacks/attacks/*.py</code>。</p>
+<h2 id="3-使用前必须注意的条件"><a href="#3-使用前必须注意的条件" class="headerlink" title="3. 使用前必须注意的条件"></a>3. 使用前必须注意的条件</h2><h3 id="3-1-模型输出格式"><a href="#3-1-模型输出格式" class="headerlink" title="3.1 模型输出格式"></a>3.1 模型输出格式</h3><p>模型输出必须是一个分类 logits 向量，形状通常是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(N, C)</span><br></pre></td></tr></table></figure>
+
+<p>含义：</p>
+<ul>
+<li><code>N</code>：batch size</li>
+<li><code>C</code>：类别数</li>
+</ul>
+<p>也就是说，模型应该返回类似 <code>model(images) -&gt; logits</code> 的结果，而不是返回多个对象、字典、特征图列表等复杂结构。</p>
+<p>如果你的模型返回：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> logits, features</span><br></pre></td></tr></table></figure>
+
+<p>就需要包一层 wrapper，只返回 logits：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">LogitsOnlyModel</span>(torch.nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, model</span>):</span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        <span class="variable language_">self</span>.model = model</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>):</span><br><span class="line">        logits, _ = <span class="variable language_">self</span>.model(x)</span><br><span class="line">        <span class="keyword">return</span> logits</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-输入图片范围"><a href="#3-2-输入图片范围" class="headerlink" title="3.2 输入图片范围"></a>3.2 输入图片范围</h3><p><code>torchattacks</code> 默认要求输入图片在 <code>[0, 1]</code> 范围内。</p>
+<p>原因是攻击过程中会对扰动后的图片执行裁剪：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">torch.clamp(adv_images, <span class="built_in">min</span>=<span class="number">0</span>, <span class="built_in">max</span>=<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+
+<p>所以，如果输入已经做过标准化，例如 ImageNet 常见的：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">transforms.Normalize(mean=[<span class="number">0.485</span>, <span class="number">0.456</span>, <span class="number">0.406</span>],</span><br><span class="line">                     std=[<span class="number">0.229</span>, <span class="number">0.224</span>, <span class="number">0.225</span>])</span><br></pre></td></tr></table></figure>
+
+<p>就需要告诉攻击器标准化参数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">atk.set_normalization_used(</span><br><span class="line">    mean=[<span class="number">0.485</span>, <span class="number">0.456</span>, <span class="number">0.406</span>],</span><br><span class="line">    std=[<span class="number">0.229</span>, <span class="number">0.224</span>, <span class="number">0.225</span>],</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>源码里的逻辑是：攻击前先反标准化回 <code>[0, 1]</code> 空间，生成对抗样本后再标准化回模型需要的输入空间。</p>
+<h3 id="3-3-复现实验时的随机性"><a href="#3-3-复现实验时的随机性" class="headerlink" title="3.3 复现实验时的随机性"></a>3.3 复现实验时的随机性</h3><p>README 建议固定随机种子时加上：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">torch.backends.cudnn.deterministic = <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p>PGD、RFGSM、随机目标攻击、随机重启等方法都可能含随机初始化。即使 seed 固定，GPU 浮点计算中也可能存在非确定性，所以复现实验时要记录：</p>
+<ul>
+<li>random seed</li>
+<li>CUDA&#x2F;cuDNN 配置</li>
+<li>攻击参数</li>
+<li>模型权重版本</li>
+<li>数据集样本范围</li>
+</ul>
+<h2 id="4-推荐复盘目录结构"><a href="#4-推荐复盘目录结构" class="headerlink" title="4. 推荐复盘目录结构"></a>4. 推荐复盘目录结构</h2><p>如果你自己复盘，建议把项目整理成这样：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">adversarial-attacks-pytorch/</span><br><span class="line">├── torchattacks/</span><br><span class="line">│   ├── attack.py              # 攻击基类，负责模式切换、保存加载、标准化、模型状态</span><br><span class="line">│   └── attacks/</span><br><span class="line">│       ├── fgsm.py            # FGSM 实现</span><br><span class="line">│       ├── pgd.py             # PGD 实现</span><br><span class="line">│       └── ...</span><br><span class="line">├── demo/</span><br><span class="line">│   ├── White-box Attack on CIFAR10.ipynb</span><br><span class="line">│   ├── White-box Targeted Attack on CIFAR10.ipynb</span><br><span class="line">│   ├── Transfer Attack on CIFAR10.ipynb</span><br><span class="line">│   └── utils.py</span><br><span class="line">├── README.md</span><br><span class="line">├── setup.py</span><br><span class="line">└── requirements.txt</span><br></pre></td></tr></table></figure>
+
+<p>复盘时优先看：</p>
+<ol>
+<li><code>README.md</code></li>
+<li><code>demo/White-box Attack on CIFAR10.ipynb</code></li>
+<li><code>demo/White-box Targeted Attack on CIFAR10.ipynb</code></li>
+<li><code>demo/Transfer Attack on CIFAR10.ipynb</code></li>
+<li><code>torchattacks/attack.py</code></li>
+<li><code>torchattacks/attacks/pgd.py</code></li>
+<li><code>torchattacks/attacks/fgsm.py</code></li>
+</ol>
+<h2 id="5-通用实验流程"><a href="#5-通用实验流程" class="headerlink" title="5. 通用实验流程"></a>5. 通用实验流程</h2><p>无论是白盒攻击、目标攻击还是迁移攻击，整体流程都差不多。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">准备环境</span><br><span class="line">  ↓</span><br><span class="line">导入 torch / torchattacks / robustbench</span><br><span class="line">  ↓</span><br><span class="line">加载数据 images, labels</span><br><span class="line">  ↓</span><br><span class="line">加载模型 model</span><br><span class="line">  ↓</span><br><span class="line">检查干净样本准确率 clean accuracy</span><br><span class="line">  ↓</span><br><span class="line">选择攻击算法 atk</span><br><span class="line">  ↓</span><br><span class="line">设置攻击参数 eps / alpha / steps / random_start</span><br><span class="line">  ↓</span><br><span class="line">如有标准化，调用 set_normalization_used</span><br><span class="line">  ↓</span><br><span class="line">生成对抗样本 adv_images = atk(images, labels)</span><br><span class="line">  ↓</span><br><span class="line">用 model(adv_images) 测鲁棒准确率 / 攻击成功率</span><br><span class="line">  ↓</span><br><span class="line">可视化或保存 adv_images</span><br></pre></td></tr></table></figure>
+
+<h2 id="6-白盒攻击流程：White-box-Attack-on-CIFAR10"><a href="#6-白盒攻击流程：White-box-Attack-on-CIFAR10" class="headerlink" title="6. 白盒攻击流程：White-box Attack on CIFAR10"></a>6. 白盒攻击流程：White-box Attack on CIFAR10</h2><p>白盒攻击的含义：攻击者知道目标模型结构和参数，可以对目标模型反向传播求梯度。</p>
+<p>demo 文件：<code>demo/White-box Attack on CIFAR10.ipynb</code></p>
+<h3 id="6-1-导入依赖"><a href="#6-1-导入依赖" class="headerlink" title="6.1 导入依赖"></a>6.1 导入依赖</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"></span><br><span class="line">sys.path.insert(<span class="number">0</span>, <span class="string">&#x27;..&#x27;</span>)</span><br><span class="line"><span class="keyword">import</span> torchattacks</span><br></pre></td></tr></table></figure>
+
+<p>这里 <code>sys.path.insert(0, &#39;..&#39;)</code> 是为了在源码目录下直接导入本地 <code>torchattacks</code>。</p>
+<h3 id="6-2-加载-CIFAR10-样本"><a href="#6-2-加载-CIFAR10-样本" class="headerlink" title="6.2 加载 CIFAR10 样本"></a>6.2 加载 CIFAR10 样本</h3><p>demo 使用 RobustBench：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> robustbench.data <span class="keyword">import</span> load_cifar10</span><br><span class="line"></span><br><span class="line">images, labels = load_cifar10(n_examples=<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
+
+<p>这里取 5 张 CIFAR10 图片做演示。</p>
+<p>复盘时要注意：</p>
+<ul>
+<li><code>images</code> 是原始输入图片，形状一般是 <code>(N, 3, 32, 32)</code>。</li>
+<li><code>labels</code> 是真实类别标签，形状是 <code>(N,)</code>。</li>
+<li>RobustBench 加载的 CIFAR10 图片通常已经是 <code>[0, 1]</code> 范围。</li>
+</ul>
+<h3 id="6-3-加载目标模型"><a href="#6-3-加载目标模型" class="headerlink" title="6.3 加载目标模型"></a>6.3 加载目标模型</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> robustbench.utils <span class="keyword">import</span> load_model, clean_accuracy</span><br><span class="line"></span><br><span class="line">device = <span class="string">&quot;cuda&quot;</span></span><br><span class="line">model = load_model(<span class="string">&quot;Standard&quot;</span>, norm=<span class="string">&quot;Linf&quot;</span>).to(device)</span><br></pre></td></tr></table></figure>
+
+<p>这里加载的是 RobustBench 中的 <code>Standard</code> CIFAR10 模型。</p>
+<h3 id="6-4-测干净样本准确率"><a href="#6-4-测干净样本准确率" class="headerlink" title="6.4 测干净样本准确率"></a>6.4 测干净样本准确率</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">acc = clean_accuracy(model, images.to(device), labels.to(device))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Acc: %2.2f %%&quot;</span> % (acc * <span class="number">100</span>))</span><br></pre></td></tr></table></figure>
+
+<p>这一步是基线检查。</p>
+<p>如果干净样本准确率很低，说明模型或数据加载就有问题，后面的攻击结果没有复盘意义。</p>
+<h3 id="6-5-构造-PGD-攻击器"><a href="#6-5-构造-PGD-攻击器" class="headerlink" title="6.5 构造 PGD 攻击器"></a>6.5 构造 PGD 攻击器</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> torchattacks <span class="keyword">import</span> PGD</span><br><span class="line"></span><br><span class="line">atk = PGD(</span><br><span class="line">    model,</span><br><span class="line">    eps=<span class="number">8</span>/<span class="number">255</span>,</span><br><span class="line">    alpha=<span class="number">2</span>/<span class="number">225</span>,</span><br><span class="line">    steps=<span class="number">10</span>,</span><br><span class="line">    random_start=<span class="literal">True</span>,</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>参数含义：</p>
+<ul>
+<li><code>model</code>：被攻击的模型。</li>
+<li><code>eps</code>：最大扰动范围，L∞ 约束下每个像素最多改动多少。</li>
+<li><code>alpha</code>：每一步梯度更新的步长。</li>
+<li><code>steps</code>：迭代次数。</li>
+<li><code>random_start</code>：是否从 <code>[-eps, eps]</code> 范围内随机初始化扰动。</li>
+</ul>
+<p>注意：README 示例里常见 <code>alpha=2/255</code>，demo 中写的是 <code>2/225</code>。复盘时要如实记录自己使用的参数，因为这个差异会影响攻击强度。</p>
+<h3 id="6-6-如果模型输入使用标准化"><a href="#6-6-如果模型输入使用标准化" class="headerlink" title="6.6 如果模型输入使用标准化"></a>6.6 如果模型输入使用标准化</h3><p>如果你的模型 forward 里不包含标准化，但 dataloader 输入已经标准化，需要：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">atk.set_normalization_used(</span><br><span class="line">    mean=[...],</span><br><span class="line">    std=[...],</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>如果模型本身内部已经处理标准化，或者输入就是 <code>[0, 1]</code>，则不需要设置。</p>
+<h3 id="6-7-生成对抗样本"><a href="#6-7-生成对抗样本" class="headerlink" title="6.7 生成对抗样本"></a>6.7 生成对抗样本</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adv_images = atk(images, labels)</span><br></pre></td></tr></table></figure>
+
+<p>这行会触发：</p>
+<ol>
+<li><code>Attack.__call__</code></li>
+<li>切换模型到 eval 模式</li>
+<li>如果设置了 normalization，先反标准化</li>
+<li>调用 <code>PGD.forward</code></li>
+<li>得到 <code>adv_images</code></li>
+<li>恢复模型原来的 train&#x2F;eval 状态</li>
+</ol>
+<h3 id="6-8-评估攻击结果"><a href="#6-8-评估攻击结果" class="headerlink" title="6.8 评估攻击结果"></a>6.8 评估攻击结果</h3><p>常见评估指标：</p>
+<ul>
+<li>干净准确率：<code>model(images)</code> 上的准确率。</li>
+<li>鲁棒准确率：<code>model(adv_images)</code> 上仍然分类正确的比例。</li>
+<li>攻击成功率：<code>1 - robust_accuracy</code>。</li>
+<li>平均扰动大小：例如 L2 distance。</li>
+</ul>
+<p>可以这样算：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">with</span> torch.no_grad():</span><br><span class="line">    logits = model(adv_images.to(device))</span><br><span class="line">    preds = logits.argmax(dim=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">robust_acc = (preds == labels.to(device)).<span class="built_in">float</span>().mean()</span><br><span class="line">attack_success_rate = <span class="number">1</span> - robust_acc</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-9-可视化"><a href="#6-9-可视化" class="headerlink" title="6.9 可视化"></a>6.9 可视化</h3><p>demo 的 <code>utils.py</code> 中有：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">imshow(adv_images[idx:idx+<span class="number">1</span>], title=<span class="string">&quot;True:%d, Pre:%d&quot;</span> % (labels[idx], pre))</span><br></pre></td></tr></table></figure>
+
+<p>它的作用是把对抗样本显示出来，并把真实标签和预测标签写到标题里。</p>
+<p>复盘时建议同时看：</p>
+<ul>
+<li>原图</li>
+<li>对抗图</li>
+<li>扰动图：<code>adv_images - images</code></li>
+<li>原预测类别</li>
+<li>攻击后预测类别</li>
+</ul>
+<h2 id="7-目标攻击流程：White-box-Targeted-Attack-on-CIFAR10"><a href="#7-目标攻击流程：White-box-Targeted-Attack-on-CIFAR10" class="headerlink" title="7. 目标攻击流程：White-box Targeted Attack on CIFAR10"></a>7. 目标攻击流程：White-box Targeted Attack on CIFAR10</h2><p>目标攻击的目的不是“让模型错”，而是“让模型错成指定类别”。</p>
+<p>demo 文件：<code>demo/White-box Targeted Attack on CIFAR10.ipynb</code></p>
+<h3 id="7-1-加载模型和数据"><a href="#7-1-加载模型和数据" class="headerlink" title="7.1 加载模型和数据"></a>7.1 加载模型和数据</h3><p>这部分和普通白盒攻击一样：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> robustbench.data <span class="keyword">import</span> load_cifar10</span><br><span class="line"><span class="keyword">from</span> robustbench.utils <span class="keyword">import</span> load_model, clean_accuracy</span><br><span class="line"></span><br><span class="line">images, labels = load_cifar10(n_examples=<span class="number">5</span>)</span><br><span class="line">device = <span class="string">&quot;cuda&quot;</span></span><br><span class="line">model = load_model(<span class="string">&quot;Standard&quot;</span>, norm=<span class="string">&quot;Linf&quot;</span>).to(device)</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-2-构造-PGD-攻击器"><a href="#7-2-构造-PGD-攻击器" class="headerlink" title="7.2 构造 PGD 攻击器"></a>7.2 构造 PGD 攻击器</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> torchattacks <span class="keyword">import</span> PGD</span><br><span class="line"></span><br><span class="line">atk = PGD(model, eps=<span class="number">8</span>/<span class="number">255</span>, alpha=<span class="number">2</span>/<span class="number">225</span>, steps=<span class="number">10</span>, random_start=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-3-切换到-targeted-by-label-模式"><a href="#7-3-切换到-targeted-by-label-模式" class="headerlink" title="7.3 切换到 targeted by label 模式"></a>7.3 切换到 targeted by label 模式</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">atk.set_mode_targeted_by_label()</span><br></pre></td></tr></table></figure>
+
+<p>这个模式的含义是：调用 <code>atk(images, target_labels)</code> 时，第二个参数不再表示真实标签，而是目标标签。</p>
+<h3 id="7-4-构造目标标签"><a href="#7-4-构造目标标签" class="headerlink" title="7.4 构造目标标签"></a>7.4 构造目标标签</h3><p>demo 中使用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">new_labels = (labels + <span class="number">1</span>) % <span class="number">10</span></span><br></pre></td></tr></table></figure>
+
+<p>含义：</p>
+<ul>
+<li>原标签 0 变成目标 1</li>
+<li>原标签 1 变成目标 2</li>
+<li>…</li>
+<li>原标签 9 变成目标 0</li>
+</ul>
+<p>这是一个简单的目标类别映射。</p>
+<h3 id="7-5-生成目标攻击样本"><a href="#7-5-生成目标攻击样本" class="headerlink" title="7.5 生成目标攻击样本"></a>7.5 生成目标攻击样本</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adv_images = atk(images, new_labels)</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-6-检查是否攻击到目标类别"><a href="#7-6-检查是否攻击到目标类别" class="headerlink" title="7.6 检查是否攻击到目标类别"></a>7.6 检查是否攻击到目标类别</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">adv_pred = model(adv_images)</span><br><span class="line"><span class="built_in">print</span>(labels)</span><br><span class="line"><span class="built_in">print</span>(torch.argmax(adv_pred, <span class="number">1</span>))</span><br></pre></td></tr></table></figure>
+
+<p>目标攻击成功的标准是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">argmax(model(adv_images)) == target_labels</span><br></pre></td></tr></table></figure>
+
+<p>而不是仅仅 <code>!= labels</code>。</p>
+<h2 id="8-其他-targeted-mode"><a href="#8-其他-targeted-mode" class="headerlink" title="8. 其他 targeted mode"></a>8. 其他 targeted mode</h2><p>README 里还提供了几种目标攻击模式。</p>
+<h3 id="8-1-随机目标标签"><a href="#8-1-随机目标标签" class="headerlink" title="8.1 随机目标标签"></a>8.1 随机目标标签</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">atk.set_mode_targeted_random()</span><br></pre></td></tr></table></figure>
+
+<p>库会自动为每个样本随机选一个不同于真实类别的目标类别。</p>
+<p>适合快速测试目标攻击，但复现实验时要注意随机性。</p>
+<h3 id="8-2-最不可能类别"><a href="#8-2-最不可能类别" class="headerlink" title="8.2 最不可能类别"></a>8.2 最不可能类别</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">atk.set_mode_targeted_least_likely(kth_min=<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+
+<p>含义：选择模型当前认为概率最低的类别作为目标类别。</p>
+<p>如果 <code>kth_min=2</code>，就是第二低概率的类别。</p>
+<h3 id="8-3-自定义映射函数"><a href="#8-3-自定义映射函数" class="headerlink" title="8.3 自定义映射函数"></a>8.3 自定义映射函数</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">atk.set_mode_targeted_by_function(</span><br><span class="line">    target_map_function=<span class="keyword">lambda</span> images, labels: (labels + <span class="number">1</span>) % <span class="number">10</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>这适合你自己指定类别映射规则。</p>
+<h3 id="8-4-恢复默认非目标攻击"><a href="#8-4-恢复默认非目标攻击" class="headerlink" title="8.4 恢复默认非目标攻击"></a>8.4 恢复默认非目标攻击</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">atk.set_mode_default()</span><br></pre></td></tr></table></figure>
+
+<p>恢复后，<code>labels</code> 又表示真实标签，攻击目标变回“让模型分类错误”。</p>
+<h2 id="9-迁移攻击流程：Transfer-Attack-on-CIFAR10"><a href="#9-迁移攻击流程：Transfer-Attack-on-CIFAR10" class="headerlink" title="9. 迁移攻击流程：Transfer Attack on CIFAR10"></a>9. 迁移攻击流程：Transfer Attack on CIFAR10</h2><p>迁移攻击的核心思想：</p>
+<ol>
+<li>在源模型上生成对抗样本。</li>
+<li>把这些对抗样本拿去攻击另一个目标模型。</li>
+<li>如果目标模型也被欺骗，说明攻击具有 transferability。</li>
+</ol>
+<p>demo 文件：<code>demo/Transfer Attack on CIFAR10.ipynb</code></p>
+<h3 id="9-1-加载数据"><a href="#9-1-加载数据" class="headerlink" title="9.1 加载数据"></a>9.1 加载数据</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> robustbench.data <span class="keyword">import</span> load_cifar10</span><br><span class="line"></span><br><span class="line">images, labels = load_cifar10(n_examples=<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="9-2-加载源模型"><a href="#9-2-加载源模型" class="headerlink" title="9.2 加载源模型"></a>9.2 加载源模型</h3><p>demo 中源模型是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">model = load_model(<span class="string">&quot;Wong2020Fast&quot;</span>, norm=<span class="string">&quot;Linf&quot;</span>).to(device)</span><br></pre></td></tr></table></figure>
+
+<p>这个模型用于生成对抗样本。</p>
+<h3 id="9-3-在源模型上生成并保存对抗样本"><a href="#9-3-在源模型上生成并保存对抗样本" class="headerlink" title="9.3 在源模型上生成并保存对抗样本"></a>9.3 在源模型上生成并保存对抗样本</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> torchattacks <span class="keyword">import</span> PGD</span><br><span class="line"></span><br><span class="line">atk = PGD(model, eps=<span class="number">8</span>/<span class="number">255</span>, alpha=<span class="number">2</span>/<span class="number">225</span>, steps=<span class="number">10</span>, random_start=<span class="literal">True</span>)</span><br><span class="line">atk.save(data_loader=[(images, labels)], save_path=<span class="string">&quot;_transfer.pt&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p><code>atk.save</code> 做了几件事：</p>
+<ul>
+<li>遍历 <code>data_loader</code></li>
+<li>对每个 batch 调用攻击器生成 <code>adv_inputs</code></li>
+<li>计算并打印 robust accuracy、L2 distance、速度</li>
+<li>把 <code>adv_inputs</code> 和 <code>labels</code> 保存到 <code>.pt</code> 文件</li>
+</ul>
+<p>如果设置更多参数，还可以保存：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">atk.save(</span><br><span class="line">    data_loader,</span><br><span class="line">    save_path=<span class="string">&quot;./data.pt&quot;</span>,</span><br><span class="line">    save_predictions=<span class="literal">True</span>,</span><br><span class="line">    save_clean_inputs=<span class="literal">True</span>,</span><br><span class="line">    save_type=<span class="string">&quot;float&quot;</span>,</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>可保存内容包括：</p>
+<ul>
+<li><code>adv_inputs</code></li>
+<li><code>labels</code></li>
+<li><code>preds</code></li>
+<li><code>clean_inputs</code></li>
+<li><code>save_type</code></li>
+</ul>
+<h3 id="9-4-加载保存的对抗数据"><a href="#9-4-加载保存的对抗数据" class="headerlink" title="9.4 加载保存的对抗数据"></a>9.4 加载保存的对抗数据</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">adv_loader = atk.load(load_path=<span class="string">&quot;_transfer.pt&quot;</span>)</span><br><span class="line">adv_images, labels = <span class="built_in">iter</span>(adv_loader).<span class="built_in">next</span>()</span><br></pre></td></tr></table></figure>
+
+<p>新版本 PyTorch 中更稳的写法是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adv_images, labels = <span class="built_in">next</span>(<span class="built_in">iter</span>(adv_loader))</span><br></pre></td></tr></table></figure>
+
+<h3 id="9-5-加载目标模型"><a href="#9-5-加载目标模型" class="headerlink" title="9.5 加载目标模型"></a>9.5 加载目标模型</h3><p>demo 中目标模型是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">model = load_model(<span class="string">&quot;Standard&quot;</span>, norm=<span class="string">&quot;Linf&quot;</span>).to(device)</span><br></pre></td></tr></table></figure>
+
+<p>注意：这里变量名仍然叫 <code>model</code>，但它已经从源模型换成了目标模型。</p>
+<h3 id="9-6-在目标模型上评估迁移攻击效果"><a href="#9-6-在目标模型上评估迁移攻击效果" class="headerlink" title="9.6 在目标模型上评估迁移攻击效果"></a>9.6 在目标模型上评估迁移攻击效果</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">acc = clean_accuracy(model, adv_images.to(device), labels.to(device))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Acc: %2.2f %%&quot;</span> % (acc * <span class="number">100</span>))</span><br></pre></td></tr></table></figure>
+
+<p>这里的准确率越低，说明对抗样本迁移性越强。</p>
+<p>复盘时建议记录：</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>源模型</td>
+<td>生成对抗样本的模型</td>
+</tr>
+<tr>
+<td>目标模型</td>
+<td>被迁移攻击评估的模型</td>
+</tr>
+<tr>
+<td>攻击算法</td>
+<td>如 PGD、MIFGSM、DIFGSM</td>
+</tr>
+<tr>
+<td>扰动范数</td>
+<td>L∞ &#x2F; L2 &#x2F; L1 &#x2F; L0</td>
+</tr>
+<tr>
+<td>eps</td>
+<td>最大扰动</td>
+</tr>
+<tr>
+<td>steps</td>
+<td>迭代步数</td>
+</tr>
+<tr>
+<td>源模型鲁棒准确率</td>
+<td>源模型在 adv_images 上的准确率</td>
+</tr>
+<tr>
+<td>目标模型鲁棒准确率</td>
+<td>目标模型在 adv_images 上的准确率</td>
+</tr>
+</tbody></table>
+<h2 id="10-MultiAttack：组合多个攻击"><a href="#10-MultiAttack：组合多个攻击" class="headerlink" title="10. MultiAttack：组合多个攻击"></a>10. MultiAttack：组合多个攻击</h2><p>README 中给了三种典型用法。</p>
+<h3 id="10-1-强攻击组合"><a href="#10-1-强攻击组合" class="headerlink" title="10.1 强攻击组合"></a>10.1 强攻击组合</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">atk1 = torchattacks.FGSM(model, eps=<span class="number">8</span>/<span class="number">255</span>)</span><br><span class="line">atk2 = torchattacks.PGD(model, eps=<span class="number">8</span>/<span class="number">255</span>, alpha=<span class="number">2</span>/<span class="number">255</span>, iters=<span class="number">40</span>, random_start=<span class="literal">True</span>)</span><br><span class="line">atk = torchattacks.MultiAttack([atk1, atk2])</span><br></pre></td></tr></table></figure>
+
+<p>含义：先后使用多个攻击，通常用于更严格评估模型鲁棒性。</p>
+<h3 id="10-2-CW-的参数搜索"><a href="#10-2-CW-的参数搜索" class="headerlink" title="10.2 CW 的参数搜索"></a>10.2 CW 的参数搜索</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">atk1 = torchattacks.CW(model, c=<span class="number">0.1</span>, steps=<span class="number">1000</span>, lr=<span class="number">0.01</span>)</span><br><span class="line">atk2 = torchattacks.CW(model, c=<span class="number">1</span>, steps=<span class="number">1000</span>, lr=<span class="number">0.01</span>)</span><br><span class="line">atk = torchattacks.MultiAttack([atk1, atk2])</span><br></pre></td></tr></table></figure>
+
+<p>CW 攻击中的 <code>c</code> 很关键，单个值可能不合适，因此可以用多个 <code>c</code> 做近似搜索。</p>
+<h3 id="10-3-PGD-随机重启"><a href="#10-3-PGD-随机重启" class="headerlink" title="10.3 PGD 随机重启"></a>10.3 PGD 随机重启</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">atk1 = torchattacks.PGD(model, eps=<span class="number">8</span>/<span class="number">255</span>, alpha=<span class="number">2</span>/<span class="number">255</span>, iters=<span class="number">40</span>, random_start=<span class="literal">True</span>)</span><br><span class="line">atk2 = torchattacks.PGD(model, eps=<span class="number">8</span>/<span class="number">255</span>, alpha=<span class="number">2</span>/<span class="number">255</span>, iters=<span class="number">40</span>, random_start=<span class="literal">True</span>)</span><br><span class="line">atk = torchattacks.MultiAttack([atk1, atk2])</span><br></pre></td></tr></table></figure>
+
+<p>含义：同一种攻击多次随机初始化，增加找到有效对抗样本的概率。</p>
+<p>注意：有些版本参数名用 <code>steps</code>，README 中部分示例写 <code>iters</code>。实际复盘时以你安装版本的类签名为准；当前源码中 PGD 参数名是 <code>steps</code>。</p>
+<h2 id="11-核心源码机制：Attack-基类"><a href="#11-核心源码机制：Attack-基类" class="headerlink" title="11. 核心源码机制：Attack 基类"></a>11. 核心源码机制：Attack 基类</h2><p>核心文件：<code>torchattacks/attack.py</code></p>
+<p>所有攻击类基本都继承：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Attack</span>(<span class="title class_ inherited__">object</span>):</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<p>它负责通用流程，具体攻击算法只需要实现 <code>forward</code>。</p>
+<h3 id="11-1-初始化做了什么"><a href="#11-1-初始化做了什么" class="headerlink" title="11.1 初始化做了什么"></a>11.1 初始化做了什么</h3><p>初始化时主要设置：</p>
+<ul>
+<li><code>self.attack</code>：攻击名称。</li>
+<li><code>self.model</code>：被攻击模型。</li>
+<li><code>self.device</code>：自动从模型参数推断设备。</li>
+<li><code>self.attack_mode</code>：默认是 <code>&quot;default&quot;</code>。</li>
+<li><code>self.targeted</code>：默认是 <code>False</code>。</li>
+<li><code>self.normalization_used</code>：是否使用标准化参数。</li>
+<li>模型训练&#x2F;评估模式控制参数。</li>
+</ul>
+<h3 id="11-2-调用攻击器时发生什么"><a href="#11-2-调用攻击器时发生什么" class="headerlink" title="11.2 调用攻击器时发生什么"></a>11.2 调用攻击器时发生什么</h3><p>当执行：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adv_images = atk(images, labels)</span><br></pre></td></tr></table></figure>
+
+<p>实际调用的是：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Attack.__call__</span><br></pre></td></tr></table></figure>
+
+<p>流程可以概括为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">记录模型当前是 train 还是 eval</span><br><span class="line">  ↓</span><br><span class="line">攻击期间按配置切换模型模式</span><br><span class="line">  ↓</span><br><span class="line">如果启用了 normalization：</span><br><span class="line">    对输入 inverse_normalize</span><br><span class="line">    调用具体攻击 forward</span><br><span class="line">    对结果 normalize</span><br><span class="line">否则：</span><br><span class="line">    直接调用具体攻击 forward</span><br><span class="line">  ↓</span><br><span class="line">恢复模型原来的 train/eval 状态</span><br><span class="line">  ↓</span><br><span class="line">返回 adv_inputs</span><br></pre></td></tr></table></figure>
+
+<h3 id="11-3-模型模式控制"><a href="#11-3-模型模式控制" class="headerlink" title="11.3 模型模式控制"></a>11.3 模型模式控制</h3><p>默认情况下，攻击时模型会切到 eval 模式。</p>
+<p>如果是 RNN 类模型，eval 模式下可能无法正常计算梯度，可以设置：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">atk.set_model_training_mode(</span><br><span class="line">    model_training=<span class="literal">True</span>,</span><br><span class="line">    batchnorm_training=<span class="literal">False</span>,</span><br><span class="line">    dropout_training=<span class="literal">False</span>,</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>这表示：</p>
+<ul>
+<li>整体模型进入 train。</li>
+<li>BatchNorm 仍然保持 eval。</li>
+<li>Dropout 仍然保持 eval。</li>
+</ul>
+<h2 id="12-PGD-源码逻辑"><a href="#12-PGD-源码逻辑" class="headerlink" title="12. PGD 源码逻辑"></a>12. PGD 源码逻辑</h2><p>文件：<code>torchattacks/attacks/pgd.py</code></p>
+<p>PGD 是这个项目里最常用、也最适合复盘的攻击之一。</p>
+<h3 id="12-1-PGD-初始化参数"><a href="#12-1-PGD-初始化参数" class="headerlink" title="12.1 PGD 初始化参数"></a>12.1 PGD 初始化参数</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PGD(model, eps=<span class="number">8</span>/<span class="number">255</span>, alpha=<span class="number">2</span>/<span class="number">255</span>, steps=<span class="number">10</span>, random_start=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+
+<p>含义：</p>
+<ul>
+<li><code>eps</code>：扰动半径。</li>
+<li><code>alpha</code>：每步更新大小。</li>
+<li><code>steps</code>：迭代次数。</li>
+<li><code>random_start</code>：是否随机初始化。</li>
+<li>支持模式：<code>default</code> 和 <code>targeted</code>。</li>
+</ul>
+<h3 id="12-2-PGD-forward-流程"><a href="#12-2-PGD-forward-流程" class="headerlink" title="12.2 PGD forward 流程"></a>12.2 PGD forward 流程</h3><p>源码逻辑可以概括为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">复制 images 和 labels 到 device</span><br><span class="line">  ↓</span><br><span class="line">如果是 targeted attack：</span><br><span class="line">    根据模式得到 target_labels</span><br><span class="line">  ↓</span><br><span class="line">设置 loss = CrossEntropyLoss</span><br><span class="line">  ↓</span><br><span class="line">adv_images = images 的副本</span><br><span class="line">  ↓</span><br><span class="line">如果 random_start=True：</span><br><span class="line">    在 [-eps, eps] 内随机扰动</span><br><span class="line">    clamp 到 [0, 1]</span><br><span class="line">  ↓</span><br><span class="line">循环 steps 次：</span><br><span class="line">    adv_images.requires_grad = True</span><br><span class="line">    outputs = model(adv_images)</span><br><span class="line">    如果 targeted：</span><br><span class="line">        cost = -CE(outputs, target_labels)</span><br><span class="line">    否则：</span><br><span class="line">        cost = CE(outputs, labels)</span><br><span class="line">    grad = 对 adv_images 求梯度</span><br><span class="line">    adv_images = adv_images + alpha * sign(grad)</span><br><span class="line">    delta = clamp(adv_images - images, -eps, eps)</span><br><span class="line">    adv_images = clamp(images + delta, 0, 1)</span><br><span class="line">  ↓</span><br><span class="line">返回 adv_images</span><br></pre></td></tr></table></figure>
+
+<h3 id="12-3-为什么-targeted-时-loss-前面是负号"><a href="#12-3-为什么-targeted-时-loss-前面是负号" class="headerlink" title="12.3 为什么 targeted 时 loss 前面是负号"></a>12.3 为什么 targeted 时 loss 前面是负号</h3><p>非目标攻击希望模型远离真实标签，所以最大化真实标签上的交叉熵。</p>
+<p>目标攻击希望模型靠近目标标签，所以最小化目标标签上的交叉熵。</p>
+<p>因为代码更新方向统一写成：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adv_images = adv_images + alpha * grad.sign()</span><br></pre></td></tr></table></figure>
+
+<p>所以 targeted 情况下用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cost = -loss(outputs, target_labels)</span><br></pre></td></tr></table></figure>
+
+<p>这样梯度上升 <code>cost</code> 就等价于梯度下降目标标签 loss。</p>
+<h2 id="13-FGSM-源码逻辑"><a href="#13-FGSM-源码逻辑" class="headerlink" title="13. FGSM 源码逻辑"></a>13. FGSM 源码逻辑</h2><p>文件：<code>torchattacks/attacks/fgsm.py</code></p>
+<p>FGSM 可以看成 PGD 的一步版本。</p>
+<p>流程：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">复制 images 和 labels 到 device</span><br><span class="line">  ↓</span><br><span class="line">如果是 targeted：</span><br><span class="line">    得到 target_labels</span><br><span class="line">  ↓</span><br><span class="line">images.requires_grad = True</span><br><span class="line">  ↓</span><br><span class="line">outputs = model(images)</span><br><span class="line">  ↓</span><br><span class="line">非目标攻击：cost = CE(outputs, labels)</span><br><span class="line">目标攻击：cost = -CE(outputs, target_labels)</span><br><span class="line">  ↓</span><br><span class="line">grad = 对 images 求梯度</span><br><span class="line">  ↓</span><br><span class="line">adv_images = images + eps * sign(grad)</span><br><span class="line">  ↓</span><br><span class="line">clamp 到 [0, 1]</span><br><span class="line">  ↓</span><br><span class="line">返回 adv_images</span><br></pre></td></tr></table></figure>
+
+<p>FGSM 快，但通常弱于多步 PGD。</p>
+<h2 id="14-支持的攻击类别梳理"><a href="#14-支持的攻击类别梳理" class="headerlink" title="14. 支持的攻击类别梳理"></a>14. 支持的攻击类别梳理</h2><p>README 列了很多攻击。复盘时可以按范数和用途分类。</p>
+<h3 id="14-1-L∞-攻击"><a href="#14-1-L∞-攻击" class="headerlink" title="14.1 L∞ 攻击"></a>14.1 L∞ 攻击</h3><p>常见：</p>
+<ul>
+<li>FGSM</li>
+<li>BIM</li>
+<li>RFGSM</li>
+<li>PGD</li>
+<li>MIFGSM</li>
+<li>TPGD</li>
+<li>EOTPGD</li>
+<li>DIFGSM</li>
+<li>TIFGSM</li>
+<li>NIFGSM</li>
+<li>SINIFGSM</li>
+<li>VMIFGSM</li>
+<li>VNIFGSM</li>
+<li>Jitter</li>
+<li>SPSA</li>
+<li>PIFGSM</li>
+<li>PIFGSM++</li>
+</ul>
+<p>适合复盘重点：</p>
+<ul>
+<li>FGSM：一步梯度符号攻击。</li>
+<li>PGD：多步投影梯度攻击，鲁棒性评估常用。</li>
+<li>MIFGSM&#x2F;DIFGSM&#x2F;TIFGSM：更偏迁移攻击。</li>
+</ul>
+<h3 id="14-2-L2-攻击"><a href="#14-2-L2-攻击" class="headerlink" title="14.2 L2 攻击"></a>14.2 L2 攻击</h3><p>常见：</p>
+<ul>
+<li>CW</li>
+<li>PGDL2</li>
+<li>APGD</li>
+<li>APGDT</li>
+<li>FAB</li>
+<li>Square</li>
+<li>AutoAttack</li>
+<li>DeepFool</li>
+<li>EADEN</li>
+</ul>
+<p>适合复盘重点：</p>
+<ul>
+<li>CW：经典优化式攻击。</li>
+<li>PGDL2：L2 约束下的 PGD。</li>
+<li>AutoAttack：自动组合多种强攻击，常用于鲁棒性评估。</li>
+</ul>
+<h3 id="14-3-L0-稀疏攻击"><a href="#14-3-L0-稀疏攻击" class="headerlink" title="14.3 L0 &#x2F; 稀疏攻击"></a>14.3 L0 &#x2F; 稀疏攻击</h3><p>常见：</p>
+<ul>
+<li>OnePixel</li>
+<li>SparseFool</li>
+<li>Pixle</li>
+<li>JSMA</li>
+</ul>
+<p>它们更关注“改动很少像素也能欺骗模型”。</p>
+<h3 id="14-4-黑盒攻击"><a href="#14-4-黑盒攻击" class="headerlink" title="14.4 黑盒攻击"></a>14.4 黑盒攻击</h3><p>常见：</p>
+<ul>
+<li>Square</li>
+<li>SPSA</li>
+<li>Pixle</li>
+</ul>
+<p>黑盒攻击不依赖目标模型梯度，通常通过查询或随机搜索构造对抗样本。</p>
+<h2 id="15-保存与加载对抗样本"><a href="#15-保存与加载对抗样本" class="headerlink" title="15. 保存与加载对抗样本"></a>15. 保存与加载对抗样本</h2><h3 id="15-1-保存"><a href="#15-1-保存" class="headerlink" title="15.1 保存"></a>15.1 保存</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">atk.save(data_loader, save_path=<span class="string">&quot;./data.pt&quot;</span>, verbose=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+
+<p>保存过程中会打印：</p>
+<ul>
+<li>Save progress</li>
+<li>Robust accuracy</li>
+<li>L2</li>
+<li>每次迭代耗时</li>
+</ul>
+<h3 id="15-2-加载"><a href="#15-2-加载" class="headerlink" title="15.2 加载"></a>15.2 加载</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adv_loader = atk.load(load_path=<span class="string">&quot;./data.pt&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>加载后返回的是 PyTorch <code>DataLoader</code>。</p>
+<p>默认数据顺序：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[adv_inputs, labels]</span><br></pre></td></tr></table></figure>
+
+<p>如果保存了 predictions 或 clean inputs，加载时需要指定：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">adv_loader = atk.load(</span><br><span class="line">    load_path=<span class="string">&quot;./data.pt&quot;</span>,</span><br><span class="line">    load_predictions=<span class="literal">True</span>,</span><br><span class="line">    load_clean_inputs=<span class="literal">True</span>,</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>返回顺序会变成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[adv_inputs, labels, preds, clean_inputs]</span><br></pre></td></tr></table></figure>
+
+<h2 id="16-评估指标复盘模板"><a href="#16-评估指标复盘模板" class="headerlink" title="16. 评估指标复盘模板"></a>16. 评估指标复盘模板</h2><p>每次攻击实验建议记录这些字段：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">| 字段 | 记录 |</span><br><span class="line">|---|---|</span><br><span class="line">| 数据集 | CIFAR10 / ImageNet / 自定义 |</span><br><span class="line">| 样本数量 | 例如 5 / 50 / 10000 |</span><br><span class="line">| 模型 | Standard / Wong2020Fast / 自己的模型 |</span><br><span class="line">| 攻击算法 | FGSM / PGD / CW / AutoAttack |</span><br><span class="line">| 攻击类型 | 非目标 / 目标 / 迁移 |</span><br><span class="line">| 范数约束 | L∞ / L2 / L1 / L0 |</span><br><span class="line">| eps | 例如 8/255 |</span><br><span class="line">| alpha | 例如 2/255 |</span><br><span class="line">| steps | 例如 10 / 40 |</span><br><span class="line">| random<span class="emphasis">_start | True / False |</span></span><br><span class="line"><span class="emphasis">| clean accuracy | 干净样本准确率 |</span></span><br><span class="line"><span class="emphasis">| robust accuracy | 对抗样本准确率 |</span></span><br><span class="line"><span class="emphasis">| attack success rate | 1 - robust accuracy |</span></span><br><span class="line"><span class="emphasis">| 平均 L2 | 扰动平均 L2 距离 |</span></span><br><span class="line"><span class="emphasis">| 是否标准化 | mean/std |</span></span><br><span class="line"><span class="emphasis">| 是否固定随机性 | seed / cudnn.deterministic |</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="17-常见坑"><a href="#17-常见坑" class="headerlink" title="17. 常见坑"></a>17. 常见坑</h2><h3 id="17-1-输入不是-0-1"><a href="#17-1-输入不是-0-1" class="headerlink" title="17.1 输入不是 [0, 1]"></a>17.1 输入不是 <code>[0, 1]</code></h3><p>如果输入已经标准化，但没有设置 <code>set_normalization_used</code>，攻击过程中的 clamp 会把标准化空间当成像素空间，结果会不可信。</p>
+<h3 id="17-2-模型输出不是-N-C"><a href="#17-2-模型输出不是-N-C" class="headerlink" title="17.2 模型输出不是 (N, C)"></a>17.2 模型输出不是 <code>(N, C)</code></h3><p><code>torchattacks</code> 默认只处理单个分类 logits 输出。多输出模型需要 wrapper。</p>
+<h3 id="17-3-忘记-to-device"><a href="#17-3-忘记-to-device" class="headerlink" title="17.3 忘记 .to(device)"></a>17.3 忘记 <code>.to(device)</code></h3><p>模型、图片、标签要在同一个设备上。demo 默认：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">device = <span class="string">&quot;cuda&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>如果没有 GPU，要改成：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">device = <span class="string">&quot;cpu&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="17-4-目标攻击标签理解错"><a href="#17-4-目标攻击标签理解错" class="headerlink" title="17.4 目标攻击标签理解错"></a>17.4 目标攻击标签理解错</h3><p><code>set_mode_targeted_by_label()</code> 之后，传给 <code>atk(images, labels)</code> 的第二个参数是目标标签，不是真实标签。</p>
+<h3 id="17-5-PGD-参数名版本差异"><a href="#17-5-PGD-参数名版本差异" class="headerlink" title="17.5 PGD 参数名版本差异"></a>17.5 PGD 参数名版本差异</h3><p>README 部分示例使用 <code>iters</code>，当前源码 PGD 类使用 <code>steps</code>。</p>
+<p>如果报错：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TypeError: __init__() got an unexpected keyword argument &#x27;iters&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>把 <code>iters=40</code> 改成：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">steps=<span class="number">40</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="17-6-迁移攻击源模型和目标模型混淆"><a href="#17-6-迁移攻击源模型和目标模型混淆" class="headerlink" title="17.6 迁移攻击源模型和目标模型混淆"></a>17.6 迁移攻击源模型和目标模型混淆</h3><p>迁移攻击至少有两个模型：</p>
+<ul>
+<li>source model：用来生成对抗样本。</li>
+<li>target model：用来测试对抗样本是否迁移成功。</li>
+</ul>
+<p>复盘时必须写清楚。</p>
+<h2 id="18-最小可复现脚本：普通白盒-PGD"><a href="#18-最小可复现脚本：普通白盒-PGD" class="headerlink" title="18. 最小可复现脚本：普通白盒 PGD"></a>18. 最小可复现脚本：普通白盒 PGD</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> robustbench.data <span class="keyword">import</span> load_cifar10</span><br><span class="line"><span class="keyword">from</span> robustbench.utils <span class="keyword">import</span> load_model, clean_accuracy</span><br><span class="line"><span class="keyword">from</span> torchattacks <span class="keyword">import</span> PGD</span><br><span class="line"></span><br><span class="line">device = <span class="string">&quot;cuda&quot;</span> <span class="keyword">if</span> torch.cuda.is_available() <span class="keyword">else</span> <span class="string">&quot;cpu&quot;</span></span><br><span class="line"></span><br><span class="line">images, labels = load_cifar10(n_examples=<span class="number">5</span>)</span><br><span class="line">model = load_model(<span class="string">&quot;Standard&quot;</span>, norm=<span class="string">&quot;Linf&quot;</span>).to(device)</span><br><span class="line">model.<span class="built_in">eval</span>()</span><br><span class="line"></span><br><span class="line">clean_acc = clean_accuracy(model, images.to(device), labels.to(device))</span><br><span class="line"></span><br><span class="line">atk = PGD(</span><br><span class="line">    model,</span><br><span class="line">    eps=<span class="number">8</span>/<span class="number">255</span>,</span><br><span class="line">    alpha=<span class="number">2</span>/<span class="number">255</span>,</span><br><span class="line">    steps=<span class="number">10</span>,</span><br><span class="line">    random_start=<span class="literal">True</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">adv_images = atk(images, labels)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> torch.no_grad():</span><br><span class="line">    pred = model(adv_images.to(device)).argmax(dim=<span class="number">1</span>)</span><br><span class="line">    robust_acc = (pred == labels.to(device)).<span class="built_in">float</span>().mean().item()</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Clean acc:&quot;</span>, clean_acc)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Robust acc:&quot;</span>, robust_acc)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Attack success rate:&quot;</span>, <span class="number">1</span> - robust_acc)</span><br></pre></td></tr></table></figure>
+
+<h2 id="19-最小可复现脚本：目标-PGD"><a href="#19-最小可复现脚本：目标-PGD" class="headerlink" title="19. 最小可复现脚本：目标 PGD"></a>19. 最小可复现脚本：目标 PGD</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> robustbench.data <span class="keyword">import</span> load_cifar10</span><br><span class="line"><span class="keyword">from</span> robustbench.utils <span class="keyword">import</span> load_model</span><br><span class="line"><span class="keyword">from</span> torchattacks <span class="keyword">import</span> PGD</span><br><span class="line"></span><br><span class="line">device = <span class="string">&quot;cuda&quot;</span> <span class="keyword">if</span> torch.cuda.is_available() <span class="keyword">else</span> <span class="string">&quot;cpu&quot;</span></span><br><span class="line"></span><br><span class="line">images, labels = load_cifar10(n_examples=<span class="number">5</span>)</span><br><span class="line">model = load_model(<span class="string">&quot;Standard&quot;</span>, norm=<span class="string">&quot;Linf&quot;</span>).to(device)</span><br><span class="line">model.<span class="built_in">eval</span>()</span><br><span class="line"></span><br><span class="line">target_labels = (labels + <span class="number">1</span>) % <span class="number">10</span></span><br><span class="line"></span><br><span class="line">atk = PGD(model, eps=<span class="number">8</span>/<span class="number">255</span>, alpha=<span class="number">2</span>/<span class="number">255</span>, steps=<span class="number">10</span>, random_start=<span class="literal">True</span>)</span><br><span class="line">atk.set_mode_targeted_by_label()</span><br><span class="line"></span><br><span class="line">adv_images = atk(images, target_labels)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> torch.no_grad():</span><br><span class="line">    pred = model(adv_images.to(device)).argmax(dim=<span class="number">1</span>).cpu()</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;true labels:&quot;</span>, labels)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;target labels:&quot;</span>, target_labels)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;adv preds:&quot;</span>, pred)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;target success rate:&quot;</span>, (pred == target_labels).<span class="built_in">float</span>().mean().item())</span><br></pre></td></tr></table></figure>
+
+<h2 id="20-最小可复现脚本：迁移攻击"><a href="#20-最小可复现脚本：迁移攻击" class="headerlink" title="20. 最小可复现脚本：迁移攻击"></a>20. 最小可复现脚本：迁移攻击</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> robustbench.data <span class="keyword">import</span> load_cifar10</span><br><span class="line"><span class="keyword">from</span> robustbench.utils <span class="keyword">import</span> load_model, clean_accuracy</span><br><span class="line"><span class="keyword">from</span> torchattacks <span class="keyword">import</span> PGD</span><br><span class="line"></span><br><span class="line">device = <span class="string">&quot;cuda&quot;</span> <span class="keyword">if</span> torch.cuda.is_available() <span class="keyword">else</span> <span class="string">&quot;cpu&quot;</span></span><br><span class="line"></span><br><span class="line">images, labels = load_cifar10(n_examples=<span class="number">5</span>)</span><br><span class="line"></span><br><span class="line">source_model = load_model(<span class="string">&quot;Wong2020Fast&quot;</span>, norm=<span class="string">&quot;Linf&quot;</span>).to(device)</span><br><span class="line">source_model.<span class="built_in">eval</span>()</span><br><span class="line"></span><br><span class="line">atk = PGD(source_model, eps=<span class="number">8</span>/<span class="number">255</span>, alpha=<span class="number">2</span>/<span class="number">255</span>, steps=<span class="number">10</span>, random_start=<span class="literal">True</span>)</span><br><span class="line">atk.save(data_loader=[(images, labels)], save_path=<span class="string">&quot;_transfer.pt&quot;</span>)</span><br><span class="line"></span><br><span class="line">adv_loader = atk.load(load_path=<span class="string">&quot;_transfer.pt&quot;</span>)</span><br><span class="line">adv_images, labels = <span class="built_in">next</span>(<span class="built_in">iter</span>(adv_loader))</span><br><span class="line"></span><br><span class="line">target_model = load_model(<span class="string">&quot;Standard&quot;</span>, norm=<span class="string">&quot;Linf&quot;</span>).to(device)</span><br><span class="line">target_model.<span class="built_in">eval</span>()</span><br><span class="line"></span><br><span class="line">transfer_acc = clean_accuracy(target_model, adv_images.to(device), labels.to(device))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Target robust accuracy:&quot;</span>, transfer_acc)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Transfer attack success rate:&quot;</span>, <span class="number">1</span> - transfer_acc)</span><br></pre></td></tr></table></figure>
+
+<h2 id="21-复盘建议顺序"><a href="#21-复盘建议顺序" class="headerlink" title="21. 复盘建议顺序"></a>21. 复盘建议顺序</h2><p>第一遍只跑通：</p>
+<ol>
+<li>安装 <code>torchattacks</code>。</li>
+<li>加载 5 张 CIFAR10 图片。</li>
+<li>加载 RobustBench 的 <code>Standard</code> 模型。</li>
+<li>测干净准确率。</li>
+<li>用 PGD 生成对抗样本。</li>
+<li>测对抗样本准确率。</li>
+<li>可视化一张对抗样本。</li>
+</ol>
+<p>第二遍理解参数：</p>
+<ol>
+<li>改 <code>eps</code>：如 <code>2/255</code>、<code>4/255</code>、<code>8/255</code>、<code>16/255</code>。</li>
+<li>改 <code>steps</code>：如 <code>1</code>、<code>4</code>、<code>10</code>、<code>40</code>。</li>
+<li>改 <code>random_start</code>：比较 True&#x2F;False。</li>
+<li>比较 FGSM 和 PGD。</li>
+</ol>
+<p>第三遍理解攻击类型：</p>
+<ol>
+<li>非目标 PGD。</li>
+<li>目标 PGD。</li>
+<li>迁移攻击。</li>
+<li>MultiAttack。</li>
+</ol>
+<p>第四遍看源码：</p>
+<ol>
+<li>看 <code>Attack.__call__</code>：理解通用调用流程。</li>
+<li>看 <code>PGD.forward</code>：理解迭代攻击。</li>
+<li>看 <code>FGSM.forward</code>：理解一步攻击。</li>
+<li>看 <code>Attack.save/load</code>：理解对抗样本落盘和复用。</li>
+</ol>
+<h2 id="22-参考来源"><a href="#22-参考来源" class="headerlink" title="22. 参考来源"></a>22. 参考来源</h2><ul>
+<li>GitHub README：<a target="_blank" rel="noopener" href="https://github.com/Harry24k/adversarial-attacks-pytorch">Harry24k&#x2F;adversarial-attacks-pytorch</a></li>
+<li>CIFAR10 白盒攻击 demo：<code>demo/White-box Attack on CIFAR10.ipynb</code></li>
+<li>CIFAR10 目标攻击 demo：<code>demo/White-box Targeted Attack on CIFAR10.ipynb</code></li>
+<li>CIFAR10 迁移攻击 demo：<code>demo/Transfer Attack on CIFAR10.ipynb</code></li>
+<li>工具函数：<code>demo/utils.py</code></li>
+<li>攻击基类：<code>torchattacks/attack.py</code></li>
+<li>PGD 实现：<code>torchattacks/attacks/pgd.py</code></li>
+<li>FGSM 实现：<code>torchattacks/attacks/fgsm.py</code></li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a target="_blank" rel="noopener" href="https://github.com/daihuohuo2">daihuohuo2</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://daihuohuo2.github.io/myblog/2026/06/01/adversarial-attacks-pytorch-%E5%A4%8D%E7%9B%98/">https://daihuohuo2.github.io/myblog/2026/06/01/adversarial-attacks-pytorch-%E5%A4%8D%E7%9B%98/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://daihuohuo2.github.io/myblog" target="_blank">DAIHUOHUO</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/myblog/tags/PyTorch/">PyTorch</a><a class="post-meta__tags" href="/myblog/tags/%E5%AF%B9%E6%8A%97%E6%94%BB%E5%87%BB/">对抗攻击</a><a class="post-meta__tags" href="/myblog/tags/torchattacks/">torchattacks</a></div><div class="post-share"><div class="social-share" data-image="https://avatars.githubusercontent.com/u/193844570?v=4" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/myblog/2026/05/30/diray12/" title="凉快的周六"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">凉快的周六</div></div><div class="info-2"><div class="info-item-1">早上早上去参加补训了 这可能是我最后一次参加这个学期的补训了，后面可能来不及去参加了 下午来教室学习了，没人打扰，不错，继续复习操作系统，两周之后要考试，感觉再复习几天就复习完了时间还早，但是我要把更多的时间投入到pytorch的学习上去 </div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/myblog/2026/05/24/PyTorch%E5%9F%BA%E7%A1%80/" title="PyTorch基础"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-24</div><div class="info-item-2">PyTorch基础</div></div><div class="info-2"><div class="info-item-1"> PyTorch 基础这份 notebook 按照菜鸟教程 PyTorch 教程的学习路线重新组织，内容覆盖：PyTorch 简介、Tensor、自动求导、神经网络、数据加载、训练循环、线性回归、分类模型、CNN&#x2F;RNN 形状理解、GPU、模型保存加载和练习。 参考页面：https://www.runoob.com/pytorch/pytorch-tutorial.html 学习建议：每一节先读 markdown，再运行代码。代码里写了比较细的中文注释，重点不是背 API，而是看懂每一步为什么这样写。  1. 环境检查先确认 PyTorch 是否安装成功，以及当前是否能使用 CUDA GPU。后面所有代码都会使用统一的 device，这样有 GPU 时自动用 GPU，没有 GPU 时也能在 CPU 上跑。  In&nbsp;[]:# 导入 PyTorch 主库，Tensor、随机数、保存加载、CUDA 检查等都在 torch 里 import torch  # torch.nn 是神经网络模块，里面有 Linear、ReLU、Conv2d、损失函数等 import to...</div></div></div></a><a class="pagination-related" href="/myblog/2026/05/26/PyTorch%E5%AE%98%E6%96%B9%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B%E5%A4%8D%E5%88%BB%E6%8C%87%E5%8D%97/" title="PyTorch 官方基础教程复刻指南"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-26</div><div class="info-item-2">PyTorch 官方基础教程复刻指南</div></div><div class="info-2"><div class="info-item-1">这篇笔记根据 PyTorch 官方 Learn the Basics 教程整理，目标不是只看懂概念，而是可以一步一步把官方入门项目复刻出来。 官方教程入口：  Learn the Basics Quickstart Tensors Datasets &amp; DataLoaders Transforms Build the Neural Network Autograd Optimization Save and Load the Model   1. 这个官方项目到底在做什么这个教程会带你完成一个非常典型的深度学习入门项目： 123456789101112131415下载 FashionMNIST 数据集        ↓把图片转换成 Tensor        ↓用 DataLoader 分批读取数据        ↓搭建一个简单神经网络        ↓训练模型        ↓测试模型效果        ↓保存模型参数        ↓重新加载模型并做预测  1.1 FashionMNIST 是什么FashionMNIST 是一个服装图片分类数据集。 它里面的图片是灰度...</div></div></div></a><a class="pagination-related" href="/myblog/2026/05/23/PyTorch%E5%AE%89%E8%A3%85%E6%AD%A5%E9%AA%A4/" title="PyTorch安装步骤"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-23</div><div class="info-item-2">PyTorch安装步骤</div></div><div class="info-2"><div class="info-item-1">PyTorch 安装步骤：使用 conda 环境管理这篇文章记录如何把 PyTorch 安装到单独的 conda 环境中，方便后续管理、删除、迁移和在 Jupyter Notebook 中使用。 官方安装页面：  PyTorch 官网安装选择器：https://pytorch.org/get-started/locally/ PyTorch 官方文档安装页：https://docs.pytorch.org/get-started/locally/  一、为什么建议放进 conda 环境不要把 PyTorch 直接装进全局 Python 或 Anaconda 的 base 环境。更推荐单独创建一个环境，例如 pytorch。 这样做的好处：  不污染 base 环境 不同项目可以使用不同 Python 和 PyTorch 版本 装错了可以直接删除环境重来 Jupyter Notebook 可以绑定这个环境作为独立内核 后面安装 numpy、matplotlib、scikit-learn 等包也更清晰  二、检查本机环境打开 PowerShell 或 Anaconda Prompt。...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><a href="https://github.com/daihuohuo2" target="_blank" rel="noopener noreferrer"><img src="https://avatars.githubusercontent.com/u/193844570?v=4" onerror="this.onerror=null;this.src='/myblog/img/friend_404.gif'" alt="avatar"/></a></div><div class="author-info-name"><a href="https://github.com/daihuohuo2" target="_blank" rel="noopener noreferrer">daihuohuo2</a></div><div class="author-info-description"></div><div class="site-data"><a href="/myblog/archives/"><div class="headline">文章</div><div class="length-num">31</div></a><a href="/myblog/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/myblog/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/daihuohuo2"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/daihuohuo2" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#adversarial-attacks-pytorch-%E9%A1%B9%E7%9B%AE%E5%A4%8D%E7%9B%98"><span class="toc-number">一.</span> <span class="toc-text">adversarial-attacks-pytorch 项目复盘</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E9%A1%B9%E7%9B%AE%E5%AE%9A%E4%BD%8D"><span class="toc-number"></span> <span class="toc-text">1. 项目定位</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="toc-number"></span> <span class="toc-text">2. 环境准备</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E5%AE%98%E6%96%B9%E8%A6%81%E6%B1%82"><span class="toc-number"></span> <span class="toc-text">2.1 官方要求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E5%AE%89%E8%A3%85%E6%96%B9%E5%BC%8F"><span class="toc-number"></span> <span class="toc-text">2.2 安装方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E4%BD%BF%E7%94%A8%E5%89%8D%E5%BF%85%E9%A1%BB%E6%B3%A8%E6%84%8F%E7%9A%84%E6%9D%A1%E4%BB%B6"><span class="toc-number"></span> <span class="toc-text">3. 使用前必须注意的条件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E6%A8%A1%E5%9E%8B%E8%BE%93%E5%87%BA%E6%A0%BC%E5%BC%8F"><span class="toc-number"></span> <span class="toc-text">3.1 模型输出格式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E8%BE%93%E5%85%A5%E5%9B%BE%E7%89%87%E8%8C%83%E5%9B%B4"><span class="toc-number"></span> <span class="toc-text">3.2 输入图片范围</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E5%A4%8D%E7%8E%B0%E5%AE%9E%E9%AA%8C%E6%97%B6%E7%9A%84%E9%9A%8F%E6%9C%BA%E6%80%A7"><span class="toc-number"></span> <span class="toc-text">3.3 复现实验时的随机性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E6%8E%A8%E8%8D%90%E5%A4%8D%E7%9B%98%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="toc-number"></span> <span class="toc-text">4. 推荐复盘目录结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E9%80%9A%E7%94%A8%E5%AE%9E%E9%AA%8C%E6%B5%81%E7%A8%8B"><span class="toc-number"></span> <span class="toc-text">5. 通用实验流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E7%99%BD%E7%9B%92%E6%94%BB%E5%87%BB%E6%B5%81%E7%A8%8B%EF%BC%9AWhite-box-Attack-on-CIFAR10"><span class="toc-number"></span> <span class="toc-text">6. 白盒攻击流程：White-box Attack on CIFAR10</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-%E5%AF%BC%E5%85%A5%E4%BE%9D%E8%B5%96"><span class="toc-number"></span> <span class="toc-text">6.1 导入依赖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-%E5%8A%A0%E8%BD%BD-CIFAR10-%E6%A0%B7%E6%9C%AC"><span class="toc-number"></span> <span class="toc-text">6.2 加载 CIFAR10 样本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-%E5%8A%A0%E8%BD%BD%E7%9B%AE%E6%A0%87%E6%A8%A1%E5%9E%8B"><span class="toc-number"></span> <span class="toc-text">6.3 加载目标模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-4-%E6%B5%8B%E5%B9%B2%E5%87%80%E6%A0%B7%E6%9C%AC%E5%87%86%E7%A1%AE%E7%8E%87"><span class="toc-number"></span> <span class="toc-text">6.4 测干净样本准确率</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-5-%E6%9E%84%E9%80%A0-PGD-%E6%94%BB%E5%87%BB%E5%99%A8"><span class="toc-number"></span> <span class="toc-text">6.5 构造 PGD 攻击器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-6-%E5%A6%82%E6%9E%9C%E6%A8%A1%E5%9E%8B%E8%BE%93%E5%85%A5%E4%BD%BF%E7%94%A8%E6%A0%87%E5%87%86%E5%8C%96"><span class="toc-number"></span> <span class="toc-text">6.6 如果模型输入使用标准化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-7-%E7%94%9F%E6%88%90%E5%AF%B9%E6%8A%97%E6%A0%B7%E6%9C%AC"><span class="toc-number"></span> <span class="toc-text">6.7 生成对抗样本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-8-%E8%AF%84%E4%BC%B0%E6%94%BB%E5%87%BB%E7%BB%93%E6%9E%9C"><span class="toc-number"></span> <span class="toc-text">6.8 评估攻击结果</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-9-%E5%8F%AF%E8%A7%86%E5%8C%96"><span class="toc-number"></span> <span class="toc-text">6.9 可视化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E7%9B%AE%E6%A0%87%E6%94%BB%E5%87%BB%E6%B5%81%E7%A8%8B%EF%BC%9AWhite-box-Targeted-Attack-on-CIFAR10"><span class="toc-number"></span> <span class="toc-text">7. 目标攻击流程：White-box Targeted Attack on CIFAR10</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-%E5%8A%A0%E8%BD%BD%E6%A8%A1%E5%9E%8B%E5%92%8C%E6%95%B0%E6%8D%AE"><span class="toc-number"></span> <span class="toc-text">7.1 加载模型和数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-%E6%9E%84%E9%80%A0-PGD-%E6%94%BB%E5%87%BB%E5%99%A8"><span class="toc-number"></span> <span class="toc-text">7.2 构造 PGD 攻击器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-3-%E5%88%87%E6%8D%A2%E5%88%B0-targeted-by-label-%E6%A8%A1%E5%BC%8F"><span class="toc-number"></span> <span class="toc-text">7.3 切换到 targeted by label 模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-4-%E6%9E%84%E9%80%A0%E7%9B%AE%E6%A0%87%E6%A0%87%E7%AD%BE"><span class="toc-number"></span> <span class="toc-text">7.4 构造目标标签</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-5-%E7%94%9F%E6%88%90%E7%9B%AE%E6%A0%87%E6%94%BB%E5%87%BB%E6%A0%B7%E6%9C%AC"><span class="toc-number"></span> <span class="toc-text">7.5 生成目标攻击样本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-6-%E6%A3%80%E6%9F%A5%E6%98%AF%E5%90%A6%E6%94%BB%E5%87%BB%E5%88%B0%E7%9B%AE%E6%A0%87%E7%B1%BB%E5%88%AB"><span class="toc-number"></span> <span class="toc-text">7.6 检查是否攻击到目标类别</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E5%85%B6%E4%BB%96-targeted-mode"><span class="toc-number"></span> <span class="toc-text">8. 其他 targeted mode</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#8-1-%E9%9A%8F%E6%9C%BA%E7%9B%AE%E6%A0%87%E6%A0%87%E7%AD%BE"><span class="toc-number"></span> <span class="toc-text">8.1 随机目标标签</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-2-%E6%9C%80%E4%B8%8D%E5%8F%AF%E8%83%BD%E7%B1%BB%E5%88%AB"><span class="toc-number"></span> <span class="toc-text">8.2 最不可能类别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-3-%E8%87%AA%E5%AE%9A%E4%B9%89%E6%98%A0%E5%B0%84%E5%87%BD%E6%95%B0"><span class="toc-number"></span> <span class="toc-text">8.3 自定义映射函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-4-%E6%81%A2%E5%A4%8D%E9%BB%98%E8%AE%A4%E9%9D%9E%E7%9B%AE%E6%A0%87%E6%94%BB%E5%87%BB"><span class="toc-number"></span> <span class="toc-text">8.4 恢复默认非目标攻击</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-%E8%BF%81%E7%A7%BB%E6%94%BB%E5%87%BB%E6%B5%81%E7%A8%8B%EF%BC%9ATransfer-Attack-on-CIFAR10"><span class="toc-number"></span> <span class="toc-text">9. 迁移攻击流程：Transfer Attack on CIFAR10</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#9-1-%E5%8A%A0%E8%BD%BD%E6%95%B0%E6%8D%AE"><span class="toc-number"></span> <span class="toc-text">9.1 加载数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-2-%E5%8A%A0%E8%BD%BD%E6%BA%90%E6%A8%A1%E5%9E%8B"><span class="toc-number"></span> <span class="toc-text">9.2 加载源模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-3-%E5%9C%A8%E6%BA%90%E6%A8%A1%E5%9E%8B%E4%B8%8A%E7%94%9F%E6%88%90%E5%B9%B6%E4%BF%9D%E5%AD%98%E5%AF%B9%E6%8A%97%E6%A0%B7%E6%9C%AC"><span class="toc-number"></span> <span class="toc-text">9.3 在源模型上生成并保存对抗样本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-4-%E5%8A%A0%E8%BD%BD%E4%BF%9D%E5%AD%98%E7%9A%84%E5%AF%B9%E6%8A%97%E6%95%B0%E6%8D%AE"><span class="toc-number"></span> <span class="toc-text">9.4 加载保存的对抗数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-5-%E5%8A%A0%E8%BD%BD%E7%9B%AE%E6%A0%87%E6%A8%A1%E5%9E%8B"><span class="toc-number"></span> <span class="toc-text">9.5 加载目标模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-6-%E5%9C%A8%E7%9B%AE%E6%A0%87%E6%A8%A1%E5%9E%8B%E4%B8%8A%E8%AF%84%E4%BC%B0%E8%BF%81%E7%A7%BB%E6%94%BB%E5%87%BB%E6%95%88%E6%9E%9C"><span class="toc-number"></span> <span class="toc-text">9.6 在目标模型上评估迁移攻击效果</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-MultiAttack%EF%BC%9A%E7%BB%84%E5%90%88%E5%A4%9A%E4%B8%AA%E6%94%BB%E5%87%BB"><span class="toc-number"></span> <span class="toc-text">10. MultiAttack：组合多个攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#10-1-%E5%BC%BA%E6%94%BB%E5%87%BB%E7%BB%84%E5%90%88"><span class="toc-number"></span> <span class="toc-text">10.1 强攻击组合</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-2-CW-%E7%9A%84%E5%8F%82%E6%95%B0%E6%90%9C%E7%B4%A2"><span class="toc-number"></span> <span class="toc-text">10.2 CW 的参数搜索</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-3-PGD-%E9%9A%8F%E6%9C%BA%E9%87%8D%E5%90%AF"><span class="toc-number"></span> <span class="toc-text">10.3 PGD 随机重启</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E6%A0%B8%E5%BF%83%E6%BA%90%E7%A0%81%E6%9C%BA%E5%88%B6%EF%BC%9AAttack-%E5%9F%BA%E7%B1%BB"><span class="toc-number"></span> <span class="toc-text">11. 核心源码机制：Attack 基类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#11-1-%E5%88%9D%E5%A7%8B%E5%8C%96%E5%81%9A%E4%BA%86%E4%BB%80%E4%B9%88"><span class="toc-number"></span> <span class="toc-text">11.1 初始化做了什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-2-%E8%B0%83%E7%94%A8%E6%94%BB%E5%87%BB%E5%99%A8%E6%97%B6%E5%8F%91%E7%94%9F%E4%BB%80%E4%B9%88"><span class="toc-number"></span> <span class="toc-text">11.2 调用攻击器时发生什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-3-%E6%A8%A1%E5%9E%8B%E6%A8%A1%E5%BC%8F%E6%8E%A7%E5%88%B6"><span class="toc-number"></span> <span class="toc-text">11.3 模型模式控制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-PGD-%E6%BA%90%E7%A0%81%E9%80%BB%E8%BE%91"><span class="toc-number"></span> <span class="toc-text">12. PGD 源码逻辑</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#12-1-PGD-%E5%88%9D%E5%A7%8B%E5%8C%96%E5%8F%82%E6%95%B0"><span class="toc-number"></span> <span class="toc-text">12.1 PGD 初始化参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-2-PGD-forward-%E6%B5%81%E7%A8%8B"><span class="toc-number"></span> <span class="toc-text">12.2 PGD forward 流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-3-%E4%B8%BA%E4%BB%80%E4%B9%88-targeted-%E6%97%B6-loss-%E5%89%8D%E9%9D%A2%E6%98%AF%E8%B4%9F%E5%8F%B7"><span class="toc-number"></span> <span class="toc-text">12.3 为什么 targeted 时 loss 前面是负号</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-FGSM-%E6%BA%90%E7%A0%81%E9%80%BB%E8%BE%91"><span class="toc-number"></span> <span class="toc-text">13. FGSM 源码逻辑</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#14-%E6%94%AF%E6%8C%81%E7%9A%84%E6%94%BB%E5%87%BB%E7%B1%BB%E5%88%AB%E6%A2%B3%E7%90%86"><span class="toc-number"></span> <span class="toc-text">14. 支持的攻击类别梳理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#14-1-L%E2%88%9E-%E6%94%BB%E5%87%BB"><span class="toc-number"></span> <span class="toc-text">14.1 L∞ 攻击</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-2-L2-%E6%94%BB%E5%87%BB"><span class="toc-number"></span> <span class="toc-text">14.2 L2 攻击</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-3-L0-%E7%A8%80%E7%96%8F%E6%94%BB%E5%87%BB"><span class="toc-number"></span> <span class="toc-text">14.3 L0 &#x2F; 稀疏攻击</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-4-%E9%BB%91%E7%9B%92%E6%94%BB%E5%87%BB"><span class="toc-number"></span> <span class="toc-text">14.4 黑盒攻击</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#15-%E4%BF%9D%E5%AD%98%E4%B8%8E%E5%8A%A0%E8%BD%BD%E5%AF%B9%E6%8A%97%E6%A0%B7%E6%9C%AC"><span class="toc-number"></span> <span class="toc-text">15. 保存与加载对抗样本</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#15-1-%E4%BF%9D%E5%AD%98"><span class="toc-number"></span> <span class="toc-text">15.1 保存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#15-2-%E5%8A%A0%E8%BD%BD"><span class="toc-number"></span> <span class="toc-text">15.2 加载</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#16-%E8%AF%84%E4%BC%B0%E6%8C%87%E6%A0%87%E5%A4%8D%E7%9B%98%E6%A8%A1%E6%9D%BF"><span class="toc-number"></span> <span class="toc-text">16. 评估指标复盘模板</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#17-%E5%B8%B8%E8%A7%81%E5%9D%91"><span class="toc-number"></span> <span class="toc-text">17. 常见坑</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#17-1-%E8%BE%93%E5%85%A5%E4%B8%8D%E6%98%AF-0-1"><span class="toc-number"></span> <span class="toc-text">17.1 输入不是 [0, 1]</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#17-2-%E6%A8%A1%E5%9E%8B%E8%BE%93%E5%87%BA%E4%B8%8D%E6%98%AF-N-C"><span class="toc-number"></span> <span class="toc-text">17.2 模型输出不是 (N, C)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#17-3-%E5%BF%98%E8%AE%B0-to-device"><span class="toc-number"></span> <span class="toc-text">17.3 忘记 .to(device)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#17-4-%E7%9B%AE%E6%A0%87%E6%94%BB%E5%87%BB%E6%A0%87%E7%AD%BE%E7%90%86%E8%A7%A3%E9%94%99"><span class="toc-number"></span> <span class="toc-text">17.4 目标攻击标签理解错</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#17-5-PGD-%E5%8F%82%E6%95%B0%E5%90%8D%E7%89%88%E6%9C%AC%E5%B7%AE%E5%BC%82"><span class="toc-number"></span> <span class="toc-text">17.5 PGD 参数名版本差异</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#17-6-%E8%BF%81%E7%A7%BB%E6%94%BB%E5%87%BB%E6%BA%90%E6%A8%A1%E5%9E%8B%E5%92%8C%E7%9B%AE%E6%A0%87%E6%A8%A1%E5%9E%8B%E6%B7%B7%E6%B7%86"><span class="toc-number"></span> <span class="toc-text">17.6 迁移攻击源模型和目标模型混淆</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#18-%E6%9C%80%E5%B0%8F%E5%8F%AF%E5%A4%8D%E7%8E%B0%E8%84%9A%E6%9C%AC%EF%BC%9A%E6%99%AE%E9%80%9A%E7%99%BD%E7%9B%92-PGD"><span class="toc-number"></span> <span class="toc-text">18. 最小可复现脚本：普通白盒 PGD</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#19-%E6%9C%80%E5%B0%8F%E5%8F%AF%E5%A4%8D%E7%8E%B0%E8%84%9A%E6%9C%AC%EF%BC%9A%E7%9B%AE%E6%A0%87-PGD"><span class="toc-number"></span> <span class="toc-text">19. 最小可复现脚本：目标 PGD</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#20-%E6%9C%80%E5%B0%8F%E5%8F%AF%E5%A4%8D%E7%8E%B0%E8%84%9A%E6%9C%AC%EF%BC%9A%E8%BF%81%E7%A7%BB%E6%94%BB%E5%87%BB"><span class="toc-number"></span> <span class="toc-text">20. 最小可复现脚本：迁移攻击</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#21-%E5%A4%8D%E7%9B%98%E5%BB%BA%E8%AE%AE%E9%A1%BA%E5%BA%8F"><span class="toc-number"></span> <span class="toc-text">21. 复盘建议顺序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#22-%E5%8F%82%E8%80%83%E6%9D%A5%E6%BA%90"><span class="toc-number"></span> <span class="toc-text">22. 参考来源</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/myblog/2026/06/01/adversarial-attacks-pytorch-%E5%A4%8D%E7%9B%98/" title="adversarial-attacks-pytorch 项目复盘">adversarial-attacks-pytorch 项目复盘</a><time datetime="2026-06-01T11:47:08.000Z" title="发表于 2026-06-01 19:47:08">2026-06-01</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/myblog/2026/05/30/diray12/" title="凉快的周六">凉快的周六</a><time datetime="2026-05-30T12:51:28.000Z" title="发表于 2026-05-30 20:51:28">2026-05-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/myblog/2026/05/26/PyTorch%E5%AE%98%E6%96%B9%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B%E5%A4%8D%E5%88%BB%E6%8C%87%E5%8D%97/" title="PyTorch 官方基础教程复刻指南">PyTorch 官方基础教程复刻指南</a><time datetime="2026-05-26T07:30:00.000Z" title="发表于 2026-05-26 15:30:00">2026-05-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/myblog/2026/05/25/csharp%E5%9F%BA%E7%A1%80/" title="C# 基础">C# 基础</a><time datetime="2026-05-25T07:00:00.000Z" title="发表于 2026-05-25 15:00:00">2026-05-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/myblog/2026/05/24/diray11/" title="这段时间">这段时间</a><time datetime="2026-05-24T13:39:56.000Z" title="发表于 2026-05-24 21:39:56">2026-05-24</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By daihuohuo2</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.5-b1</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/myblog/js/utils.js?v=5.5.5-b1"></script><script src="/myblog/js/main.js?v=5.5.5-b1"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

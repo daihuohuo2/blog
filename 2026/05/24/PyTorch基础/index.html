@@ -1,0 +1,1878 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><script async src="https://www.googletagmanager.com/gtag/js?id=G-81X7H81C1C"></script><script>window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+
+gtag('config', 'G-81X7H81C1C');
+
+</script><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>PyTorch基础 | DAIHUOHUO</title><meta name="author" content="daihuohuo2"><meta name="copyright" content="daihuohuo2"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="PyTorch 基础这份 notebook 按照菜鸟教程 PyTorch 教程的学习路线重新组织，内容覆盖：PyTorch 简介、Tensor、自动求导、神经网络、数据加载、训练循环、线性回归、分类模型、CNN&#x2F;RNN 形状理解、GPU、模型保存加载和练习。 参考页面：https:&#x2F;&#x2F;www.runoob.com&#x2F;pytorch&#x2F;pytorch-t">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PyTorch基础">
+<meta property="og:url" content="https://daihuohuo2.github.io/myblog/2026/05/24/PyTorch%E5%9F%BA%E7%A1%80/index.html">
+<meta property="og:site_name" content="DAIHUOHUO">
+<meta property="og:description" content="PyTorch 基础这份 notebook 按照菜鸟教程 PyTorch 教程的学习路线重新组织，内容覆盖：PyTorch 简介、Tensor、自动求导、神经网络、数据加载、训练循环、线性回归、分类模型、CNN&#x2F;RNN 形状理解、GPU、模型保存加载和练习。 参考页面：https:&#x2F;&#x2F;www.runoob.com&#x2F;pytorch&#x2F;pytorch-t">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/193844570?v=4">
+<meta property="article:published_time" content="2026-05-24T08:30:00.000Z">
+<meta property="article:modified_time" content="2026-05-26T08:39:22.528Z">
+<meta property="article:author" content="daihuohuo2">
+<meta property="article:tag" content="PyTorch">
+<meta property="article:tag" content="深度学习">
+<meta property="article:tag" content="较难知识">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://avatars.githubusercontent.com/u/193844570?v=4"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "PyTorch基础",
+  "url": "https://daihuohuo2.github.io/myblog/2026/05/24/PyTorch%E5%9F%BA%E7%A1%80/",
+  "image": "https://avatars.githubusercontent.com/u/193844570?v=4",
+  "datePublished": "2026-05-24T08:30:00.000Z",
+  "dateModified": "2026-05-26T08:39:22.528Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "daihuohuo2",
+      "url": "https://github.com/daihuohuo2"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/myblog/img/favicon.png"><link rel="canonical" href="https://daihuohuo2.github.io/myblog/2026/05/24/PyTorch%E5%9F%BA%E7%A1%80/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/myblog/css/index.css?v=5.5.5-b1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-8X1R7XH81C"></script><script>window.dataLayer = window.dataLayer || []
+function gtag(){dataLayer.push(arguments)}
+gtag('js', new Date())
+gtag('config', 'G-8X1R7XH81C')
+btf.addGlobalFn('pjaxComplete', () => {
+  gtag('config', 'G-8X1R7XH81C', {'page_path': window.location.pathname})
+}, 'google_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/myblog/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'PyTorch基础',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/myblog/css/glass.css"><!-- hexo injector head_end start --><style>
+.ipynb-notebook{--ipynb-border:rgba(127,127,127,.22);--ipynb-muted:rgba(127,127,127,.72);margin:1rem 0 0}
+.ipynb-cell{margin:1.05rem 0}
+.ipynb-markdown-cell>:first-child{margin-top:0}
+.ipynb-markdown-cell>:last-child{margin-bottom:0}
+.ipynb-input{display:grid;grid-template-columns:5.8rem minmax(0,1fr);gap:.8rem;align-items:start}
+.ipynb-input-prompt{color:var(--ipynb-muted);font-family:Consolas,Monaco,monospace;font-size:.85rem;line-height:1.7;text-align:right;white-space:nowrap}
+.ipynb-code-body{min-width:0}
+.ipynb-code-body figure.highlight{margin:0}
+.ipynb-outputs{margin:.55rem 0 0 6.6rem}
+.ipynb-output{margin:.45rem 0;padding:.75rem .9rem;border:1px solid var(--ipynb-border);border-radius:6px;overflow:auto;white-space:pre-wrap;font-family:Consolas,Monaco,monospace;font-size:.9rem;line-height:1.55}
+.ipynb-output.stderr,.ipynb-output.error{border-color:rgba(220,38,38,.35);background:rgba(220,38,38,.06)}
+.ipynb-rich-output{overflow:auto}
+.ipynb-image-output{display:block;max-width:100%;height:auto;margin:.65rem 0}
+.ipynb-raw-cell pre{padding:.75rem .9rem;border:1px dashed var(--ipynb-border);border-radius:6px;overflow:auto}
+@media (max-width:640px){.ipynb-input{grid-template-columns:1fr}.ipynb-input-prompt{text-align:left}.ipynb-outputs{margin-left:0}}
+</style><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.1"></head><body><div class="bg-animation" id="web_bg" style="background-image: url(https://haowallpaper.com/link/common/file/previewFileImg/15680526683050304);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><a href="https://github.com/daihuohuo2" target="_blank" rel="noopener noreferrer"><img src="https://avatars.githubusercontent.com/u/193844570?v=4" onerror="this.onerror=null;this.src='/myblog/img/friend_404.gif'" alt="avatar"/></a></div><div class="author-info-name text-center"><a href="https://github.com/daihuohuo2" target="_blank" rel="noopener noreferrer">daihuohuo2</a></div><div class="site-data text-center"><a href="/myblog/archives/"><div class="headline">文章</div><div class="length-num">31</div></a><a href="/myblog/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/myblog/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/myblog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/myblog/"><span class="site-name">DAIHUOHUO</span></a><a class="nav-page-title" href="/myblog/"><span class="site-name">PyTorch基础</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/myblog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">PyTorch基础</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-05-24T08:30:00.000Z" title="发表于 2026-05-24 16:30:00">2026-05-24</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-05-26T08:39:22.528Z" title="更新于 2026-05-26 16:39:22">2026-05-26</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/myblog/categories/%E5%AD%A6%E4%B9%A0/">学习</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/myblog/categories/%E5%AD%A6%E4%B9%A0/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><div class="ipynb-notebook"><section class="ipynb-cell ipynb-markdown-cell"></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h1 id="PyTorch-基础"><a href="#PyTorch-基础" class="headerlink" title="PyTorch 基础"></a>PyTorch 基础</h1><p>这份 notebook 按照菜鸟教程 PyTorch 教程的学习路线重新组织，内容覆盖：PyTorch 简介、Tensor、自动求导、神经网络、数据加载、训练循环、线性回归、分类模型、CNN&#x2F;RNN 形状理解、GPU、模型保存加载和练习。</p>
+<p>参考页面：<a target="_blank" rel="noopener" href="https://www.runoob.com/pytorch/pytorch-tutorial.html">https://www.runoob.com/pytorch/pytorch-tutorial.html</a></p>
+<p>学习建议：每一节先读 markdown，再运行代码。代码里写了比较细的中文注释，重点不是背 API，而是看懂每一步为什么这样写。</p>
+</section>
+<section class="ipynb-cell ipynb-markdown-cell"><h2 id="1-环境检查"><a href="#1-环境检查" class="headerlink" title="1. 环境检查"></a>1. 环境检查</h2><p>先确认 PyTorch 是否安装成功，以及当前是否能使用 CUDA GPU。后面所有代码都会使用统一的 <code>device</code>，这样有 GPU 时自动用 GPU，没有 GPU 时也能在 CPU 上跑。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 导入 PyTorch 主库，Tensor、随机数、保存加载、CUDA 检查等都在 torch 里
+import torch
+
+# torch.nn 是神经网络模块，里面有 Linear、ReLU、Conv2d、损失函数等
+import torch.nn as nn
+
+# torch.optim 里面放优化器，例如 SGD、Adam、AdamW
+import torch.optim as optim
+
+# Dataset 和 DataLoader 用于组织数据和按 batch 读取数据
+from torch.utils.data import Dataset, DataLoader, TensorDataset, random_split
+
+# NumPy 常用于和 Tensor 互相转换，也常用于传统数据处理
+import numpy as np
+
+# 固定随机种子，让随机生成的数据尽量可复现
+# 这样你多次运行 notebook，结果不会差得太离谱
+torch.manual_seed(42)
+
+# 打印 PyTorch 版本，排查环境问题时很有用
+print(&quot;PyTorch version:&quot;, torch.__version__)
+
+# 检查当前环境是否支持 CUDA GPU
+print(&quot;CUDA available:&quot;, torch.cuda.is_available())
+
+# 如果有 CUDA GPU，就使用 cuda；否则使用 cpu
+# 后面模型和数据都会统一移动到这个 device 上
+device = torch.device(&quot;cuda&quot; if torch.cuda.is_available() else &quot;cpu&quot;)
+print(&quot;Using device:&quot;, device)
+
+# 如果有 GPU，打印显卡名称，确认 PyTorch 能识别到它
+if torch.cuda.is_available():
+    print(&quot;GPU name:&quot;, torch.cuda.get_device_name(0))
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="1-1-CUDA-和-GPU：什么时候用显卡"><a href="#1-1-CUDA-和-GPU：什么时候用显卡" class="headerlink" title="1.1 CUDA 和 GPU：什么时候用显卡"></a>1.1 CUDA 和 GPU：什么时候用显卡</h3><p><code>torch.cuda</code> 用来检查 GPU、统计设备数量、查看显存等。写代码时最好先判断 CUDA 是否可用。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 判断当前环境是否有可用 CUDA GPU
+use_cuda = torch.cuda.is_available()
+
+# 根据环境选择设备
+device = torch.device(&quot;cuda&quot; if use_cuda else &quot;cpu&quot;)
+
+# 创建 Tensor 后移动到指定设备
+x = torch.randn(2, 3).to(device)
+
+print(&quot;是否可用 CUDA：&quot;, use_cuda)
+print(&quot;当前设备：&quot;, device)
+print(&quot;Tensor 所在设备：&quot;, x.device)
+
+# 如果有 GPU，可以查看 GPU 数量
+if use_cuda:
+    print(&quot;GPU 数量：&quot;, torch.cuda.device_count())
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="1-2-随机种子：让实验结果更稳定"><a href="#1-2-随机种子：让实验结果更稳定" class="headerlink" title="1.2 随机种子：让实验结果更稳定"></a>1.2 随机种子：让实验结果更稳定</h3><p>训练神经网络时经常需要固定随机种子，让实验结果更容易复现。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 固定随机种子
+torch.manual_seed(42)
+
+# 两次运行这个单元时，随机数会保持一致
+x1 = torch.randn(3)
+
+# 再次设置同一个种子
+torch.manual_seed(42)
+
+# 得到和 x1 一样的随机数
+x2 = torch.randn(3)
+
+print(x1)
+print(x2)
+print(torch.equal(x1, x2))
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h2 id="2-PyTorch-核心概念总览"><a href="#2-PyTorch-核心概念总览" class="headerlink" title="2. PyTorch 核心概念总览"></a>2. PyTorch 核心概念总览</h2><p>PyTorch 可以先抓住几个关键词：</p>
+<ul>
+<li><code>torch</code>：核心张量计算，类似 NumPy，但支持 GPU 和自动求导</li>
+<li><code>Tensor</code>：PyTorch 的核心数据结构，模型输入、参数、输出都用它表示</li>
+<li><code>autograd</code>：自动求导系统，负责反向传播需要的梯度</li>
+<li><code>nn.Module</code>：构建神经网络模型的基类</li>
+<li><code>optim</code>：优化器模块，用梯度更新参数</li>
+<li><code>Dataset/DataLoader</code>：数据集和数据加载器，用来按 batch 喂数据</li>
+</ul>
+<p>下面从 Tensor 开始。</p>
+</section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="2-1-先把专业术语说清楚"><a href="#2-1-先把专业术语说清楚" class="headerlink" title="2.1 先把专业术语说清楚"></a>2.1 先把专业术语说清楚</h3><p>很多 PyTorch 教程难懂，不是因为代码特别难，而是因为里面有很多专业术语。下面先把常见词解释清楚，后面再看代码会顺很多。</p>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>人话解释</th>
+<th>举例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数据</td>
+<td>拿来给模型学习的材料</td>
+<td>图片、文字、表格、声音</td>
+</tr>
+<tr>
+<td>样本</td>
+<td>一条数据</td>
+<td>一张猫的图片、一个学生的信息</td>
+</tr>
+<tr>
+<td>特征</td>
+<td>样本里用来判断的输入信息</td>
+<td>房子的面积、楼层、位置</td>
+</tr>
+<tr>
+<td>标签</td>
+<td>这条样本的正确答案</td>
+<td>图片是猫、房价是 100 万、成绩是及格</td>
+</tr>
+<tr>
+<td>模型</td>
+<td>一个会根据输入给出预测的函数</td>
+<td>输入图片，输出“猫&#x2F;狗”概率</td>
+</tr>
+<tr>
+<td>参数</td>
+<td>模型内部可以被训练改变的数字</td>
+<td>神经网络里的权重和偏置</td>
+</tr>
+<tr>
+<td>预测值</td>
+<td>模型算出来的答案</td>
+<td>模型预测房价是 98 万</td>
+</tr>
+<tr>
+<td>真实值</td>
+<td>数据里原本给出的正确答案</td>
+<td>实际房价是 100 万</td>
+</tr>
+<tr>
+<td>损失</td>
+<td>预测值和真实值差得有多远</td>
+<td>预测越离谱，损失越大</td>
+</tr>
+<tr>
+<td>优化器</td>
+<td>负责调整模型参数的工具</td>
+<td>Adam、SGD</td>
+</tr>
+<tr>
+<td>梯度</td>
+<td>告诉参数该往哪个方向改的信号</td>
+<td>类似“往左调一点会更准”</td>
+</tr>
+<tr>
+<td>训练</td>
+<td>让模型反复看数据、改参数</td>
+<td>多做题，多改错</td>
+</tr>
+<tr>
+<td>推理</td>
+<td>用训练好的模型做预测</td>
+<td>给新图片判断是不是猫</td>
+</tr>
+<tr>
+<td>batch</td>
+<td>一小批样本</td>
+<td>一次给模型看 32 张图片</td>
+</tr>
+<tr>
+<td>epoch</td>
+<td>把所有训练数据完整学一遍</td>
+<td>1000 张图全看完一次就是 1 个 epoch</td>
+</tr>
+<tr>
+<td>过拟合</td>
+<td>模型把训练数据背熟了，但新数据表现差</td>
+<td>只会做原题，不会做新题</td>
+</tr>
+<tr>
+<td>欠拟合</td>
+<td>模型还没学明白，训练数据也做不好</td>
+<td>基础概念都没掌握</td>
+</tr>
+</tbody></table>
+</section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="什么是标签-label？"><a href="#什么是标签-label？" class="headerlink" title="什么是标签 label？"></a>什么是标签 label？</h3><p><strong>标签就是正确答案。</strong></p>
+<p>例如你要训练一个模型识别猫和狗：</p>
+<pre><code class="language-text">0 表示猫
+1 表示狗
+</code></pre>
+<p>一张猫的图片，它的标签就是 <code>0</code>；一张狗的图片，它的标签就是 <code>1</code>。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 假设有 4 张图片，这里不真的放图片，只用随机数模拟图片特征
+features = torch.randn(4, 3)
+
+# labels 就是标签，也就是每个样本的正确答案
+# 这里约定：0 表示猫，1 表示狗
+labels = torch.tensor([0, 1, 0, 1])
+
+print(&quot;特征 shape：&quot;, features.shape)
+print(&quot;标签：&quot;, labels)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="什么是特征-feature？"><a href="#什么是特征-feature？" class="headerlink" title="什么是特征 feature？"></a>什么是特征 feature？</h3><p><strong>特征就是模型用来判断的输入信息。</strong></p>
+<p>比如预测房价时，模型不能凭空猜，它需要一些输入：面积、楼层、城市、房龄、是否靠近地铁。</p>
+<p>这些输入信息就叫特征。在深度学习里，图片也可以看成特征：图片里的每个像素值，都是模型的输入信息。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 一个房价预测的小例子
+# 每一行是一个房子样本
+# 三列分别表示：面积、楼层、房龄
+house_features = torch.tensor([
+    [80.0, 6.0, 10.0],
+    [120.0, 18.0, 3.0],
+    [60.0, 2.0, 20.0],
+])
+
+# 标签是每个房子的真实价格，单位可以理解成“万元”
+house_labels = torch.tensor([200.0, 420.0, 150.0])
+
+print(house_features)
+print(house_labels)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="什么是模型-model？"><a href="#什么是模型-model？" class="headerlink" title="什么是模型 model？"></a>什么是模型 model？</h3><p><strong>模型就是一个函数：输入一些东西，输出一个预测结果。</strong></p>
+<p>可以先把模型想成这样：</p>
+<pre><code class="language-text">输入特征 -&gt; 模型 -&gt; 预测答案
+</code></pre>
+<p>例如：房子面积、楼层、房龄进入模型，模型输出预测房价。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 一个最简单的模型：输入 3 个特征，输出 1 个预测值
+model = torch.nn.Linear(3, 1)
+
+# 输入一个房子的 3 个特征：面积、楼层、房龄
+one_house = torch.tensor([[80.0, 6.0, 10.0]])
+
+# 模型给出预测结果
+pred_price = model(one_house)
+
+print(&quot;预测房价：&quot;, pred_price)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="什么是损失-loss？"><a href="#什么是损失-loss？" class="headerlink" title="什么是损失 loss？"></a>什么是损失 loss？</h3><p><strong>损失就是模型错得有多离谱。</strong></p>
+<p>预测值和真实标签越接近，损失越小；差距越大，损失越大。训练模型的目标就是让损失越来越小。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 假设模型预测了 3 个房价
+pred = torch.tensor([98.0, 210.0, 305.0])
+
+# 真实房价标签
+true = torch.tensor([100.0, 200.0, 300.0])
+
+# mse_loss 是均方误差，常用于回归任务
+loss = torch.nn.functional.mse_loss(pred, true)
+
+print(&quot;损失：&quot;, loss.item())
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="什么是-batch-和-epoch？"><a href="#什么是-batch-和-epoch？" class="headerlink" title="什么是 batch 和 epoch？"></a>什么是 batch 和 epoch？</h3><p>如果数据很多，模型通常不会一次性看完所有数据，而是分批看。</p>
+<ul>
+<li><strong>batch</strong>：一次喂给模型的一小批数据</li>
+<li><strong>batch size</strong>：这一小批里有多少条样本</li>
+<li><strong>epoch</strong>：所有训练数据被完整看完一遍</li>
+</ul>
+<p>比如有 1000 张图片，batch size 是 100，那么 1 个 epoch 就包含 10 个 batch。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 构造 10 条样本，每条样本有 2 个特征
+x = torch.randn(10, 2)
+
+# 构造 10 个标签
+y = torch.randint(0, 2, (10,))
+
+# TensorDataset 把特征和标签打包成数据集
+dataset = torch.utils.data.TensorDataset(x, y)
+
+# batch_size=4 表示每次取 4 条样本
+loader = torch.utils.data.DataLoader(dataset, batch_size=4, shuffle=False)
+
+# 遍历 DataLoader，每次拿到一个 batch
+for batch_index, (batch_x, batch_y) in enumerate(loader):
+    print(&quot;第几个 batch：&quot;, batch_index)
+    print(&quot;batch 特征 shape：&quot;, batch_x.shape)
+    print(&quot;batch 标签：&quot;, batch_y)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="什么是梯度-gradient？"><a href="#什么是梯度-gradient？" class="headerlink" title="什么是梯度 gradient？"></a>什么是梯度 gradient？</h3><p><strong>梯度可以理解成“参数应该怎么改，损失才能变小”的方向提示。</strong></p>
+<p>训练神经网络时，模型会先做预测，再计算损失，然后反向传播计算梯度，最后优化器根据梯度修改参数。</p>
+<p>不用一开始就把梯度的数学公式弄懂。先记住：梯度是模型改正错误时需要的方向信息。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 创建一个可训练的参数 w
+w = torch.tensor(2.0, requires_grad=True)
+
+# 假设目标是让 w 接近 5
+loss = (w - 5) ** 2
+
+# backward 会计算梯度
+loss.backward()
+
+# w.grad 就是 w 的梯度
+print(&quot;当前 w：&quot;, w.item())
+print(&quot;当前损失：&quot;, loss.item())
+print(&quot;w 的梯度：&quot;, w.grad.item())
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="什么是训练和推理？"><a href="#什么是训练和推理？" class="headerlink" title="什么是训练和推理？"></a>什么是训练和推理？</h3><p><strong>训练</strong>：模型看带标签的数据，反复修改参数，让预测越来越准。</p>
+<p><strong>推理</strong>：模型已经训练好，拿它去预测新数据。</p>
+<p>可以这样记：训练是学习阶段，需要标签，需要改参数；推理是考试阶段，不需要标签，不改参数，只输出预测。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 训练阶段：需要计算梯度，所以模型参数会被优化器更新
+model = torch.nn.Linear(2, 1)
+optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
+
+x = torch.randn(5, 2)
+y = torch.randn(5, 1)
+
+pred = model(x)
+loss = torch.nn.functional.mse_loss(pred, y)
+
+optimizer.zero_grad()
+loss.backward()
+optimizer.step()
+
+# 推理阶段：不需要计算梯度
+with torch.no_grad():
+    new_x = torch.randn(1, 2)
+    result = model(new_x)
+    print(&quot;推理结果：&quot;, result)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="分类、回归、标签的区别"><a href="#分类、回归、标签的区别" class="headerlink" title="分类、回归、标签的区别"></a>分类、回归、标签的区别</h3><p>常见任务可以先分成两类：</p>
+<table>
+<thead>
+<tr>
+<th>任务</th>
+<th>预测什么</th>
+<th>标签长什么样</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>分类</td>
+<td>预测类别</td>
+<td>通常是类别编号</td>
+<td>猫&#x2F;狗&#x2F;鸟，垃圾邮件&#x2F;正常邮件</td>
+</tr>
+<tr>
+<td>回归</td>
+<td>预测连续数字</td>
+<td>通常是小数或整数</td>
+<td>房价、温度、销量</td>
+</tr>
+</tbody></table>
+<p>分类任务里，标签常常是 <code>0、1、2</code> 这种类别编号。回归任务里，标签常常是 <code>100.0、36.5、5200.0</code> 这种真实数值。</p>
+</section>
+<section class="ipynb-cell ipynb-markdown-cell"><h2 id="3-Tensor-张量基础"><a href="#3-Tensor-张量基础" class="headerlink" title="3. Tensor 张量基础"></a>3. Tensor 张量基础</h2><p>Tensor 可以理解成“支持 GPU 和自动求导的多维数组”。</p>
+<p>常见维度：</p>
+<table>
+<thead>
+<tr>
+<th>数据</th>
+<th align="right">维度</th>
+<th>shape 示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>标量</td>
+<td align="right">0 维</td>
+<td><code>torch.Size([])</code></td>
+</tr>
+<tr>
+<td>向量</td>
+<td align="right">1 维</td>
+<td><code>torch.Size([5])</code></td>
+</tr>
+<tr>
+<td>矩阵</td>
+<td align="right">2 维</td>
+<td><code>torch.Size([3, 4])</code></td>
+</tr>
+<tr>
+<td>单张彩色图片</td>
+<td align="right">3 维</td>
+<td><code>torch.Size([3, 224, 224])</code></td>
+</tr>
+<tr>
+<td>一批图片</td>
+<td align="right">4 维</td>
+<td><code>torch.Size([32, 3, 224, 224])</code></td>
+</tr>
+</tbody></table>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 0 维 Tensor：标量，也就是单个数字
+scalar = torch.tensor(3.14)
+
+# 1 维 Tensor：向量，可以表示一个样本的多个特征
+vector = torch.tensor([1, 2, 3, 4, 5])
+
+# 2 维 Tensor：矩阵，可以表示表格数据或一批样本的特征
+# arange(12) 生成 0 到 11，然后 reshape 成 3 行 4 列
+matrix = torch.arange(12).reshape(3, 4)
+
+# 3 维 Tensor：这里模拟一张图片，格式为 [channels, height, width]
+image = torch.randn(3, 224, 224)
+
+# 4 维 Tensor：这里模拟一批图片，格式为 [batch, channels, height, width]
+batch_images = torch.randn(32, 3, 224, 224)
+
+# 逐个打印 Tensor 的形状、维度数量和元素总数
+for name, tensor in [
+    (&quot;scalar&quot;, scalar),
+    (&quot;vector&quot;, vector),
+    (&quot;matrix&quot;, matrix),
+    (&quot;image&quot;, image),
+    (&quot;batch_images&quot;, batch_images),
+]:
+    print(f&quot;{name:12s} shape={tuple(tensor.shape)}, ndim={tensor.ndim}, numel={tensor.numel()}&quot;)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="3-1-创建-Tensor"><a href="#3-1-创建-Tensor" class="headerlink" title="3.1 创建 Tensor"></a>3.1 创建 Tensor</h3><p>常用创建函数包括：<code>torch.tensor</code>、<code>zeros</code>、<code>ones</code>、<code>randn</code>、<code>arange</code>、<code>linspace</code>、<code>eye</code>。这些函数在写测试代码、初始化数据、理解 shape 时非常常用。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 从 Python 列表直接创建 Tensor
+# dtype=torch.float32 表示元素使用 32 位浮点数，神经网络里最常见
+a = torch.tensor([[1, 2, 3], [4, 5, 6]], dtype=torch.float32)
+
+# 创建 2 行 3 列的全 0 Tensor
+zeros = torch.zeros(2, 3)
+
+# 创建 2 行 3 列的全 1 Tensor
+ones = torch.ones(2, 3)
+
+# 创建 2 行 3 列的随机 Tensor，元素来自标准正态分布
+random_normal = torch.randn(2, 3)
+
+# 创建等差整数序列：0, 2, 4, 6, 8
+seq = torch.arange(0, 10, 2)
+
+# 在 0 到 1 之间均匀取 5 个点
+linear_space = torch.linspace(0, 1, steps=5)
+
+# 创建 4 行 4 列单位矩阵，主对角线为 1，其余为 0
+identity = torch.eye(4)
+
+print(&quot;a =\n&quot;, a)
+print(&quot;zeros =\n&quot;, zeros)
+print(&quot;ones =\n&quot;, ones)
+print(&quot;random_normal =\n&quot;, random_normal)
+print(&quot;seq =&quot;, seq)
+print(&quot;linear_space =&quot;, linear_space)
+print(&quot;identity =\n&quot;, identity)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="3-2-Tensor-的属性：shape、dtype、device"><a href="#3-2-Tensor-的属性：shape、dtype、device" class="headerlink" title="3.2 Tensor 的属性：shape、dtype、device"></a>3.2 Tensor 的属性：shape、dtype、device</h3><p>写 PyTorch 代码时，一旦报错，第一反应就是检查 <code>shape</code>、<code>dtype</code> 和 <code>device</code>。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 创建一个 4 行 5 列的随机 Tensor
+x = torch.randn(4, 5)
+
+# shape 表示形状，这里是 [4, 5]
+print(&quot;shape:&quot;, x.shape)
+
+# dtype 表示数据类型，随机浮点 Tensor 默认通常是 float32
+print(&quot;dtype:&quot;, x.dtype)
+
+# device 表示 Tensor 当前所在设备，默认在 CPU 上
+print(&quot;device:&quot;, x.device)
+
+# ndim 表示维度数量，[4, 5] 是二维
+print(&quot;ndim:&quot;, x.ndim)
+
+# numel 表示元素总数，4 * 5 = 20
+print(&quot;numel:&quot;, x.numel())
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="3-3-索引、切片、布尔筛选"><a href="#3-3-索引、切片、布尔筛选" class="headerlink" title="3.3 索引、切片、布尔筛选"></a>3.3 索引、切片、布尔筛选</h3><p>Tensor 的索引规则和 Python 列表、NumPy 类似，都是从 0 开始计数。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 创建一个 3 行 4 列的矩阵
+x = torch.arange(12).reshape(3, 4)
+print(&quot;x =\n&quot;, x)
+
+# 取第 0 行
+print(&quot;第 0 行:&quot;, x[0])
+
+# 取第 1 行第 2 列的元素
+print(&quot;第 1 行第 2 列:&quot;, x[1, 2])
+
+# 取所有行的第 0 列
+print(&quot;第 0 列:&quot;, x[:, 0])
+
+# 取第 1 行到最后一行，并且取前 2 列
+print(&quot;第 1 行到最后，前 2 列:\n&quot;, x[1:, :2])
+
+# 布尔筛选：先构造一个包含正数和负数的向量
+values = torch.tensor([1, -2, 3, -4, 5])
+
+# mask 中正数位置为 True，其他位置为 False
+mask = values &gt; 0
+print(&quot;mask:&quot;, mask)
+
+# 用 mask 筛选出所有正数
+print(&quot;positive values:&quot;, values[mask])
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="3-4-形状变换"><a href="#3-4-形状变换" class="headerlink" title="3.4 形状变换"></a>3.4 形状变换</h3><p>神经网络对输入形状很敏感。常见操作有 <code>reshape</code>、<code>unsqueeze</code>、<code>squeeze</code>、<code>permute</code>、<code>flatten</code>。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 构造一个 shape 为 [2, 3, 4] 的 Tensor
+# 总元素数量是 2 * 3 * 4 = 24
+x = torch.arange(24).reshape(2, 3, 4)
+print(&quot;原始 shape:&quot;, x.shape)
+
+# reshape(2, 12)：把后两个维度合并
+print(&quot;reshape(2, 12):&quot;, x.reshape(2, 12).shape)
+
+# flatten()：把所有维度拉平成一维
+print(&quot;flatten():&quot;, x.flatten().shape)
+
+# flatten(start_dim=1)：保留第 0 维，从第 1 维开始拉平
+print(&quot;flatten(start_dim=1):&quot;, x.flatten(start_dim=1).shape)
+
+# unsqueeze 增加一个长度为 1 的维度
+v = torch.tensor([1, 2, 3])
+print(&quot;v shape:&quot;, v.shape)
+print(&quot;v.unsqueeze(0):&quot;, v.unsqueeze(0).shape)
+print(&quot;v.unsqueeze(1):&quot;, v.unsqueeze(1).shape)
+
+# squeeze 删除长度为 1 的维度
+y = torch.randn(1, 3, 1, 4)
+print(&quot;y shape:&quot;, y.shape)
+print(&quot;y.squeeze():&quot;, y.squeeze().shape)
+
+# 图片从 HWC 转为 CHW
+# 很多图片库读出来是 [height, width, channels]
+img_hwc = torch.randn(224, 224, 3)
+
+# PyTorch 卷积层一般需要 [channels, height, width]
+img_chw = img_hwc.permute(2, 0, 1)
+print(&quot;HWC -&gt; CHW:&quot;, img_hwc.shape, &quot;-&gt;&quot;, img_chw.shape)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="3-5-Tensor-运算、广播和矩阵乘法"><a href="#3-5-Tensor-运算、广播和矩阵乘法" class="headerlink" title="3.5 Tensor 运算、广播和矩阵乘法"></a>3.5 Tensor 运算、广播和矩阵乘法</h3><p>Tensor 支持逐元素运算、统计运算、广播和矩阵乘法。广播规则可以简单记成：从最后一个维度开始对齐；两个维度相等，或其中一个为 1，就可以广播。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 逐元素运算：相同位置的元素互相运算
+x = torch.tensor([1.0, 2.0, 3.0])
+y = torch.tensor([10.0, 20.0, 30.0])
+print(&quot;x + y:&quot;, x + y)
+print(&quot;x * y:&quot;, x * y)
+print(&quot;x ** 2:&quot;, x ** 2)
+
+# 统计运算：sum、mean、max、min 很常用
+m = torch.arange(12, dtype=torch.float32).reshape(3, 4)
+print(&quot;m =\n&quot;, m)
+print(&quot;所有元素求和:&quot;, m.sum())
+print(&quot;所有元素平均值:&quot;, m.mean())
+print(&quot;每一列求和 dim=0:&quot;, m.sum(dim=0))
+print(&quot;每一行求和 dim=1:&quot;, m.sum(dim=1))
+
+# 广播示例：[4, 3] + [3]
+base = torch.ones(4, 3)
+bias = torch.tensor([10, 20, 30])
+print(&quot;广播结果:\n&quot;, base + bias)
+
+# 矩阵乘法要求前一个矩阵的列数等于后一个矩阵的行数
+# [2, 3] @ [3, 4] -&gt; [2, 4]
+a = torch.randn(2, 3)
+b = torch.randn(3, 4)
+c = a @ b
+print(&quot;matrix multiply:&quot;, a.shape, &quot;@&quot;, b.shape, &quot;=&quot;, c.shape)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="3-6-Tensor-和-NumPy、设备转换"><a href="#3-6-Tensor-和-NumPy、设备转换" class="headerlink" title="3.6 Tensor 和 NumPy、设备转换"></a>3.6 Tensor 和 NumPy、设备转换</h3><p>PyTorch 经常和 NumPy 配合使用；GPU 训练时还需要在 CPU 和 CUDA 之间移动 Tensor。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># NumPy 转 Tensor
+numpy_array = np.array([[1, 2], [3, 4]])
+tensor_from_numpy = torch.from_numpy(numpy_array)
+print(&quot;from numpy:\n&quot;, tensor_from_numpy)
+
+# Tensor 转 NumPy
+# 如果 Tensor 需要梯度或在 GPU 上，推荐写成 detach().cpu().numpy()
+tensor_for_numpy = torch.tensor([1.0, 2.0, 3.0], requires_grad=True)
+array_from_tensor = tensor_for_numpy.detach().cpu().numpy()
+print(&quot;to numpy:&quot;, array_from_tensor)
+
+# 在指定设备上创建 Tensor
+x = torch.randn(2, 3, device=device)
+print(&quot;x device:&quot;, x.device)
+
+# 如果后续需要回到 CPU，可以用 .cpu()
+x_cpu = x.cpu()
+print(&quot;x_cpu device:&quot;, x_cpu.device)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="3-7-torch-顶层函数：创建、拼接、保存"><a href="#3-7-torch-顶层函数：创建、拼接、保存" class="headerlink" title="3.7 torch 顶层函数：创建、拼接、保存"></a>3.7 torch 顶层函数：创建、拼接、保存</h3><p><code>torch</code> 顶层模块里放着 Tensor 创建、拼接、数学运算、随机数、保存加载等基础能力。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 导入 PyTorch 主库
+import torch
+
+# 创建 Tensor：从 Python 列表变成 PyTorch Tensor
+a = torch.tensor([1, 2, 3])
+
+# 创建全 0 Tensor，常用来初始化占位数据
+zeros = torch.zeros(2, 3)
+
+# 创建标准正态分布随机 Tensor，常用于测试模型输入
+random_x = torch.randn(4, 5)
+
+# 按维度拼接 Tensor，dim=0 表示按行拼接
+cat_x = torch.cat([zeros, zeros], dim=0)
+
+# 保存 Tensor 或模型参数到文件
+torch.save(a, &quot;tensor_demo.pt&quot;)
+
+# 读取刚才保存的 Tensor
+loaded_a = torch.load(&quot;tensor_demo.pt&quot;)
+
+print(a)
+print(zeros.shape)
+print(random_x.shape)
+print(cat_x.shape)
+print(loaded_a)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="3-8-Tensor-自带方法：reshape、mean、sum、to"><a href="#3-8-Tensor-自带方法：reshape、mean、sum、to" class="headerlink" title="3.8 Tensor 自带方法：reshape、mean、sum、to"></a>3.8 Tensor 自带方法：reshape、mean、sum、to</h3><p>很多操作既可以写成 <code>torch.mean(x)</code>，也可以写成 <code>x.mean()</code>。后者就是 Tensor 对象自己的方法。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 创建一个 2 行 3 列的 Tensor
+x = torch.tensor([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
+
+# 查看形状
+print(x.shape)
+
+# reshape 改变形状，不改变数据总数量
+print(x.reshape(3, 2))
+
+# mean 计算平均值
+print(x.mean())
+
+# sum 按列求和，dim=0 表示压缩第 0 个维度
+print(x.sum(dim=0))
+
+# to 可以移动设备或转换类型
+print(x.to(dtype=torch.int64))
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="3-9-torch-linalg：矩阵和线性代数"><a href="#3-9-torch-linalg：矩阵和线性代数" class="headerlink" title="3.9 torch.linalg：矩阵和线性代数"></a>3.9 torch.linalg：矩阵和线性代数</h3><p><code>torch.linalg</code> 适合处理矩阵范数、逆矩阵、特征值、奇异值分解等线性代数问题。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 创建一个 2x2 矩阵
+A = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+
+# 计算矩阵范数
+print(torch.linalg.norm(A))
+
+# 计算逆矩阵
+print(torch.linalg.inv(A))
+
+# 计算特征值
+print(torch.linalg.eigvals(A))
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="3-10-torch-fft：频域变换的基本认识"><a href="#3-10-torch-fft：频域变换的基本认识" class="headerlink" title="3.10 torch.fft：频域变换的基本认识"></a>3.10 torch.fft：频域变换的基本认识</h3><p><code>torch.fft</code> 主要用于信号处理、图像处理和频域分析。初学深度学习可以先知道它的用途。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 创建一个简单的一维信号
+signal = torch.tensor([1.0, 0.0, -1.0, 0.0])
+
+# 快速傅里叶变换，把时域信号变到频域
+freq = torch.fft.fft(signal)
+
+# 逆傅里叶变换，把频域结果变回时域
+back = torch.fft.ifft(freq)
+
+print(freq)
+print(back)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="3-11-torch-distributions：概率分布入门"><a href="#3-11-torch-distributions：概率分布入门" class="headerlink" title="3.11 torch.distributions：概率分布入门"></a>3.11 torch.distributions：概率分布入门</h3><p><code>torch.distributions</code> 可以创建正态分布、分类分布等，常用于概率模型、强化学习和生成模型。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 创建一个均值为 0、标准差为 1 的正态分布
+normal = torch.distributions.Normal(loc=0.0, scale=1.0)
+
+# 从分布中采样 5 个数
+samples = normal.sample((5,))
+
+# 计算样本对应的对数概率
+log_prob = normal.log_prob(samples)
+
+print(samples)
+print(log_prob)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h2 id="4-自动求导-Autograd"><a href="#4-自动求导-Autograd" class="headerlink" title="4. 自动求导 Autograd"></a>4. 自动求导 Autograd</h2><p>自动求导是 PyTorch 训练神经网络的关键。只要 Tensor 设置了 <code>requires_grad=True</code>，PyTorch 就会记录它参与过的运算。对最终损失调用 <code>backward()</code> 后，相关变量的 <code>.grad</code> 中会保存梯度。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 创建一个需要求梯度的标量 x
+# requires_grad=True 表示 PyTorch 要追踪它的计算过程
+x = torch.tensor(2.0, requires_grad=True)
+
+# 定义函数 y = 3x^2 + 2x + 1
+y = 3 * x ** 2 + 2 * x + 1
+
+# 对 y 进行反向传播，计算 dy/dx
+# y 是标量，所以可以直接 backward()
+y.backward()
+
+# 数学上 dy/dx = 6x + 2，当 x=2 时结果是 14
+print(&quot;y:&quot;, y.item())
+print(&quot;dy/dx:&quot;, x.grad.item())
+
+# 注意：梯度默认会累积
+# 如果再次 backward 而不清空 grad，新的梯度会加到旧梯度上
+y2 = 3 * x ** 2 + 2 * x + 1
+y2.backward()
+print(&quot;再次 backward 后累积的 grad:&quot;, x.grad.item())
+
+# 手动清空梯度，训练模型时通常由 optimizer.zero_grad() 完成
+x.grad.zero_()
+print(&quot;清空后的 grad:&quot;, x.grad.item())
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="4-1-torch-autograd：更细地控制梯度"><a href="#4-1-torch-autograd：更细地控制梯度" class="headerlink" title="4.1 torch.autograd：更细地控制梯度"></a>4.1 torch.autograd：更细地控制梯度</h3><p>平时常用 <code>loss.backward()</code> 就够了。需要更细控制梯度时，可以了解 <code>torch.autograd.grad</code>。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 创建需要求梯度的 Tensor
+x = torch.tensor(3.0, requires_grad=True)
+
+# 定义一个简单函数 y = x^2 + 2x
+y = x ** 2 + 2 * x
+
+# 计算 y 对 x 的梯度
+grad_x = torch.autograd.grad(y, x)
+
+print(grad_x)
+
+# no_grad 表示这段代码不记录梯度，常用于验证和推理
+with torch.no_grad():
+    z = x * 10
+    print(z)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h2 id="5-神经网络基础-nn-Module"><a href="#5-神经网络基础-nn-Module" class="headerlink" title="5. 神经网络基础 nn.Module"></a>5. 神经网络基础 nn.Module</h2><p>PyTorch 中的模型通常继承 <code>nn.Module</code>。写模型时重点是两个位置：</p>
+<ul>
+<li><code>__init__</code>：定义层</li>
+<li><code>forward</code>：定义数据怎么流过这些层</li>
+</ul>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 定义一个很小的多层感知机 MLP
+class SimpleNet(nn.Module):
+    def __init__(self):
+        # 调用父类初始化，nn.Module 子类必须写
+        super().__init__()
+
+        # nn.Sequential 可以把多个层按顺序组合起来
+        self.net = nn.Sequential(
+            # 输入 2 个特征，输出 16 个隐藏特征
+            nn.Linear(2, 16),
+
+            # ReLU 激活函数，让模型具备非线性表达能力
+            nn.ReLU(),
+
+            # 输出 1 个值，适合做回归或二分类 logit
+            nn.Linear(16, 1)
+        )
+
+    def forward(self, x):
+        # forward 定义前向传播逻辑
+        return self.net(x)
+
+# 创建模型并移动到 device
+model = SimpleNet().to(device)
+
+# 构造 5 个样本，每个样本有 2 个特征
+sample_x = torch.randn(5, 2).to(device)
+
+# 调用 model(sample_x) 会自动执行 forward
+sample_out = model(sample_x)
+print(model)
+print(&quot;input shape:&quot;, sample_x.shape)
+print(&quot;output shape:&quot;, sample_out.shape)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="5-1-torch-nn：常用层和模型容器"><a href="#5-1-torch-nn：常用层和模型容器" class="headerlink" title="5.1 torch.nn：常用层和模型容器"></a>5.1 torch.nn：常用层和模型容器</h3><p><code>torch.nn</code> 主要负责“搭模型”，里面有全连接层、卷积层、循环层、归一化层、损失函数和模型容器。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># nn 通常这样导入
+import torch.nn as nn
+
+# Sequential 可以把多个层按顺序串起来
+model = nn.Sequential(
+    nn.Linear(10, 32),  # 全连接层：输入 10 维，输出 32 维
+    nn.ReLU(),          # 激活函数：增加非线性表达能力
+    nn.Linear(32, 2)    # 输出层：输出 2 个类别的分数
+)
+
+# 构造一批假数据：batch_size=4，每条数据 10 个特征
+x = torch.randn(4, 10)
+
+# 前向传播，得到模型输出
+y = model(x)
+
+print(y.shape)
+print(model)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="5-2-ModuleList、Sequential-和常见网络层"><a href="#5-2-ModuleList、Sequential-和常见网络层" class="headerlink" title="5.2 ModuleList、Sequential 和常见网络层"></a>5.2 ModuleList、Sequential 和常见网络层</h3><p><code>torch.nn</code> 是搭神经网络的工具箱。<code>nn.Sequential</code> 适合简单顺序模型；<code>nn.ModuleList</code> 适合需要自己控制 forward 逻辑的模型。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># ModuleList 示例：它只负责保存层，不会自动执行
+class TinyBlockNet(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.layers = nn.ModuleList([
+            nn.Linear(4, 8),  # 输入 4 维，输出 8 维
+            nn.ReLU(),        # 激活函数
+            nn.Linear(8, 2)   # 输出 2 维
+        ])
+
+    def forward(self, x):
+        # ModuleList 不会自动按顺序执行，所以要自己写循环
+        for layer in self.layers:
+            x = layer(x)
+        return x
+
+net = TinyBlockNet().to(device)
+input_x = torch.randn(3, 4).to(device)  # 3 个样本，每个 4 个特征
+output = net(input_x)
+print(&quot;input shape:&quot;, input_x.shape)
+print(&quot;output shape:&quot;, output.shape)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="5-3-BatchNorm-和-Dropout：让训练更稳定"><a href="#5-3-BatchNorm-和-Dropout：让训练更稳定" class="headerlink" title="5.3 BatchNorm 和 Dropout：让训练更稳定"></a>5.3 BatchNorm 和 Dropout：让训练更稳定</h3><p>BatchNorm 常用于稳定训练，Dropout 常用于减少过拟合。它们在 <code>model.train()</code> 和 <code>model.eval()</code> 下行为不同，所以训练&#x2F;验证模式切换非常重要。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># BatchNorm 和 Dropout 示例
+class NormDropoutNet(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(10, 16),
+            nn.BatchNorm1d(16),  # 对 16 维特征做批归一化
+            nn.ReLU(),
+            nn.Dropout(p=0.5),   # 训练时随机丢弃一半特征
+            nn.Linear(16, 2)
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
+norm_model = NormDropoutNet().to(device)
+example = torch.randn(4, 10).to(device)
+
+norm_model.train()          # 训练模式：Dropout 生效
+train_out = norm_model(example)
+
+norm_model.eval()           # 评估模式：Dropout 关闭
+with torch.no_grad():
+    eval_out = norm_model(example)
+
+print(&quot;train output shape:&quot;, train_out.shape)
+print(&quot;eval output shape:&quot;, eval_out.shape)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h2 id="6-损失函数和优化器"><a href="#6-损失函数和优化器" class="headerlink" title="6. 损失函数和优化器"></a>6. 损失函数和优化器</h2><p>训练神经网络的基本套路：前向传播得到预测，计算损失，反向传播得到梯度，优化器更新参数。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 重新创建模型，避免受前面演示影响
+model = SimpleNet().to(device)
+
+# MSELoss 是均方误差损失，常用于回归任务
+loss_fn = nn.MSELoss()
+
+# Adam 是常用优化器，lr 是学习率
+optimizer = optim.Adam(model.parameters(), lr=0.01)
+
+# 构造一个 batch：8 个样本，每个样本 2 个特征
+batch_x = torch.randn(8, 2).to(device)
+
+# 构造目标值：每个样本对应 1 个连续标签
+batch_y = torch.randn(8, 1).to(device)
+
+# 1. 前向传播：模型根据输入给出预测
+pred = model(batch_x)
+
+# 2. 计算损失：预测和真实值的差距
+loss = loss_fn(pred, batch_y)
+
+# 3. 清空旧梯度：PyTorch 的梯度默认累积
+optimizer.zero_grad()
+
+# 4. 反向传播：计算每个参数的梯度
+loss.backward()
+
+# 5. 更新参数：优化器根据梯度调整模型参数
+optimizer.step()
+
+print(&quot;one step loss:&quot;, loss.item())
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="6-1-torch-nn-functional：函数式激活和损失"><a href="#6-1-torch-nn-functional：函数式激活和损失" class="headerlink" title="6.1 torch.nn.functional：函数式激活和损失"></a>6.1 torch.nn.functional：函数式激活和损失</h3><p><code>torch.nn.functional</code> 常简写为 <code>F</code>。它里面是无状态函数，比如激活函数、softmax、交叉熵等。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># functional 通常这样导入
+import torch.nn.functional as F
+
+# logits 表示模型还没有经过 softmax 的原始输出
+logits = torch.tensor([[2.0, 0.5, 0.1]])
+
+# softmax 把原始分数变成概率
+prob = F.softmax(logits, dim=1)
+
+# target 表示正确类别编号，这里正确类别是第 0 类
+target = torch.tensor([0])
+
+# cross_entropy 内部已经包含 log_softmax，所以 logits 不需要提前 softmax
+loss = F.cross_entropy(logits, target)
+
+print(prob)
+print(loss)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="6-2-常见损失函数怎么选"><a href="#6-2-常见损失函数怎么选" class="headerlink" title="6.2 常见损失函数怎么选"></a>6.2 常见损失函数怎么选</h3><p>损失函数和任务类型强相关：回归用 <code>MSELoss</code>&#x2F;<code>L1Loss</code>；二分类用 <code>BCEWithLogitsLoss</code>；多分类用 <code>CrossEntropyLoss</code>。重点：后两个都吃 logits，不要提前 sigmoid&#x2F;softmax。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 1. 回归任务：预测连续值
+reg_pred = torch.tensor([[2.5], [3.0], [4.0]])
+reg_target = torch.tensor([[3.0], [2.5], [5.0]])
+reg_loss = nn.MSELoss()(reg_pred, reg_target)
+print(&quot;MSE 回归损失:&quot;, reg_loss.item())
+
+# 2. 二分类任务：输出一个 logit，标签是 0/1 浮点数
+binary_logits = torch.tensor([[1.2], [-0.7], [0.3]])
+binary_target = torch.tensor([[1.0], [0.0], [1.0]])
+binary_loss = nn.BCEWithLogitsLoss()(binary_logits, binary_target)
+print(&quot;BCEWithLogits 二分类损失:&quot;, binary_loss.item())
+
+# 3. 多分类任务：输出每个类别的 logits，标签是类别下标 long
+multi_logits = torch.tensor([[2.0, 0.5, -1.0], [0.1, 1.5, 0.3]])
+multi_target = torch.tensor([0, 1], dtype=torch.long)
+multi_loss = nn.CrossEntropyLoss()(multi_logits, multi_target)
+print(&quot;CrossEntropy 多分类损失:&quot;, multi_loss.item())
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="6-3-torch-optim：优化器怎么更新参数"><a href="#6-3-torch-optim：优化器怎么更新参数" class="headerlink" title="6.3 torch.optim：优化器怎么更新参数"></a>6.3 torch.optim：优化器怎么更新参数</h3><p>优化器负责根据梯度更新模型参数。训练循环里通常会出现 <code>zero_grad()</code>、<code>backward()</code>、<code>step()</code> 三步。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 创建一个简单模型
+model = nn.Linear(3, 1)
+
+# Adam 是常用优化器，lr 是学习率
+optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+
+# 假输入和假标签
+x = torch.randn(5, 3)
+y_true = torch.randn(5, 1)
+
+# 前向传播
+y_pred = model(x)
+
+# 计算均方误差损失
+loss = F.mse_loss(y_pred, y_true)
+
+# 清空上一轮梯度
+optimizer.zero_grad()
+
+# 反向传播，计算梯度
+loss.backward()
+
+# 根据梯度更新参数
+optimizer.step()
+
+print(loss.item())
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h2 id="7-数据处理与-DataLoader"><a href="#7-数据处理与-DataLoader" class="headerlink" title="7. 数据处理与 DataLoader"></a>7. 数据处理与 DataLoader</h2><p><code>Dataset</code> 描述“第 i 条数据是什么”，<code>DataLoader</code> 负责批量读取、打乱和迭代。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 构造一个简单数据集：y = 3*x1 - 2*x2 + 1 + noise
+n = 1000
+
+# X 的 shape 是 [1000, 2]，表示 1000 个样本，每个样本 2 个特征
+X = torch.randn(n, 2)
+
+# 真实权重和偏置，用来生成标签
+true_w = torch.tensor([[3.0], [-2.0]])
+true_b = 1.0
+
+# 加一点噪声，让数据更像真实数据
+noise = 0.2 * torch.randn(n, 1)
+
+# 用矩阵乘法生成标签，y 的 shape 是 [1000, 1]
+y = X @ true_w + true_b + noise
+
+# TensorDataset 可以把 Tensor 包装成数据集
+full_dataset = TensorDataset(X, y)
+
+# 按 8:2 拆分训练集和验证集
+train_size = int(0.8 * n)
+val_size = n - train_size
+train_dataset, val_dataset = random_split(full_dataset, [train_size, val_size])
+
+# DataLoader 每次返回一个 batch
+# 训练集通常 shuffle=True，让数据顺序随机化
+train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+
+# 验证集不需要打乱
+val_loader = DataLoader(val_dataset, batch_size=64, shuffle=False)
+
+# 取一个 batch 看 shape
+xb, yb = next(iter(train_loader))
+print(&quot;batch x shape:&quot;, xb.shape)
+print(&quot;batch y shape:&quot;, yb.shape)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="7-1-自定义-Dataset"><a href="#7-1-自定义-Dataset" class="headerlink" title="7.1 自定义 Dataset"></a>7.1 自定义 Dataset</h3><p>如果数据不是现成 Tensor，通常需要自己继承 <code>Dataset</code>，实现 <code>__len__</code> 和 <code>__getitem__</code>。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 自定义 Dataset 示例
+class MyRegressionDataset(Dataset):
+    def __init__(self, features, labels):
+        # 保存特征和标签
+        self.features = features
+        self.labels = labels
+
+    def __len__(self):
+        # 返回样本总数
+        return len(self.features)
+
+    def __getitem__(self, index):
+        # 根据下标 index 返回一个样本
+        # DataLoader 会自动调用这个方法来组成 batch
+        return self.features[index], self.labels[index]
+
+custom_dataset = MyRegressionDataset(X, y)
+print(&quot;dataset length:&quot;, len(custom_dataset))
+print(&quot;first sample x shape:&quot;, custom_dataset[0][0].shape)
+print(&quot;first sample y shape:&quot;, custom_dataset[0][1].shape)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="7-2-torch-utils-data：把数据分批喂给模型"><a href="#7-2-torch-utils-data：把数据分批喂给模型" class="headerlink" title="7.2 torch.utils.data：把数据分批喂给模型"></a>7.2 torch.utils.data：把数据分批喂给模型</h3><p>数据量变大后，一般不会手写循环取数据，而是使用 <code>Dataset</code> 和 <code>DataLoader</code>。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 导入数据相关工具
+from torch.utils.data import TensorDataset, DataLoader
+
+# 构造特征和标签
+features = torch.randn(100, 4)
+labels = torch.randint(0, 2, (100,))
+
+# TensorDataset 会把特征和标签按相同下标打包
+dataset = TensorDataset(features, labels)
+
+# DataLoader 负责分批、打乱和迭代数据
+loader = DataLoader(dataset, batch_size=16, shuffle=True)
+
+# 取出一个 batch 看看形状
+for batch_x, batch_y in loader:
+    print(batch_x.shape)
+    print(batch_y.shape)
+    break
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="7-3-transforms-与-torchvision：图片数据预处理"><a href="#7-3-transforms-与-torchvision：图片数据预处理" class="headerlink" title="7.3 transforms 与 torchvision：图片数据预处理"></a>7.3 transforms 与 torchvision：图片数据预处理</h3><p>图像任务通常需要：读取图片、缩放大小、转 Tensor、归一化、数据增强。真实项目一般用 <code>torchvision.transforms</code>。如果本机没装 torchvision，这个单元会提示安装。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># torchvision transforms 示例
+try:
+    from torchvision import transforms
+    from PIL import Image
+
+    # Compose 把多个图片处理步骤串起来
+    transform = transforms.Compose([
+        transforms.Resize((64, 64)),      # 缩放图片到 64x64
+        transforms.ToTensor(),            # PIL 图片 -&gt; Tensor，shape 变成 [C,H,W]，数值到 0~1
+        transforms.Normalize(             # 对 RGB 三个通道归一化
+            mean=[0.5, 0.5, 0.5],
+            std=[0.5, 0.5, 0.5]
+        )
+    ])
+
+    # 创建一张假的 RGB 图片，用于演示 transform 流程
+    fake_image = Image.new(&quot;RGB&quot;, (128, 128), color=(120, 80, 200))
+    image_tensor = transform(fake_image)
+    print(&quot;transformed image shape:&quot;, image_tensor.shape)
+    print(&quot;value range roughly:&quot;, image_tensor.min().item(), image_tensor.max().item())
+except ModuleNotFoundError as e:
+    print(&quot;当前环境缺少 torchvision 或 PIL。安装命令示例：&quot;)
+    print(&quot;python -m pip install torchvision pillow&quot;)
+    print(&quot;原始错误:&quot;, e)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h2 id="8-线性回归：完整训练循环"><a href="#8-线性回归：完整训练循环" class="headerlink" title="8. 线性回归：完整训练循环"></a>8. 线性回归：完整训练循环</h2><p>下面用 PyTorch 写一个完整训练流程。这个例子很重要，因为大多数深度学习训练代码都遵循这个结构。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 定义线性回归模型
+class LinearRegressionModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        # 输入 2 个特征，输出 1 个连续值
+        self.linear = nn.Linear(2, 1)
+
+    def forward(self, x):
+        # 直接调用线性层
+        return self.linear(x)
+
+# 创建模型、损失函数和优化器
+reg_model = LinearRegressionModel().to(device)
+reg_loss_fn = nn.MSELoss()
+reg_optimizer = optim.SGD(reg_model.parameters(), lr=0.05)
+
+def evaluate_regression(model, loader):
+    # 切换到评估模式
+    model.eval()
+
+    total_loss = 0.0
+    total_count = 0
+
+    # 验证阶段不需要计算梯度
+    with torch.no_grad():
+        for xb, yb in loader:
+            # 把数据移动到同一个设备
+            xb = xb.to(device)
+            yb = yb.to(device)
+
+            # 前向传播
+            pred = model(xb)
+
+            # 计算当前 batch 的平均损失
+            loss = reg_loss_fn(pred, yb)
+
+            # 累计总损失。乘以 batch 大小是为了最后得到全数据集平均 loss
+            total_loss += loss.item() * xb.size(0)
+            total_count += xb.size(0)
+
+    return total_loss / total_count
+
+# 训练 20 个 epoch
+for epoch in range(1, 21):
+    # 切换到训练模式
+    reg_model.train()
+
+    total_loss = 0.0
+    total_count = 0
+
+    for xb, yb in train_loader:
+        xb = xb.to(device)
+        yb = yb.to(device)
+
+        # 1. 前向传播
+        pred = reg_model(xb)
+
+        # 2. 计算损失
+        loss = reg_loss_fn(pred, yb)
+
+        # 3. 清空旧梯度
+        reg_optimizer.zero_grad()
+
+        # 4. 反向传播
+        loss.backward()
+
+        # 5. 更新模型参数
+        reg_optimizer.step()
+
+        # 统计训练损失
+        total_loss += loss.item() * xb.size(0)
+        total_count += xb.size(0)
+
+    train_loss = total_loss / total_count
+    val_loss = evaluate_regression(reg_model, val_loader)
+
+    if epoch == 1 or epoch % 5 == 0:
+        print(f&quot;epoch {epoch:02d} | train_loss={train_loss:.4f} | val_loss={val_loss:.4f}&quot;)
+
+# 查看学到的权重和偏置，它们应该接近 [3, -2] 和 1
+print(&quot;learned weight:&quot;, reg_model.linear.weight.detach().cpu())
+print(&quot;learned bias:&quot;, reg_model.linear.bias.detach().cpu())
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h2 id="9-第一个分类神经网络"><a href="#9-第一个分类神经网络" class="headerlink" title="9. 第一个分类神经网络"></a>9. 第一个分类神经网络</h2><p>多分类任务中，模型最后一层输出每个类别的 logit。使用 <code>CrossEntropyLoss</code> 时不要提前做 <code>softmax</code>，损失函数内部会处理。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 构造一个三分类二维数据集
+num_samples = 600
+num_classes = 3
+
+# 三个类别中心点
+centers = torch.tensor([[2.0, 2.0], [-2.0, 1.0], [0.0, -2.0]])
+
+# 生成标签 0、1、2，每个类别数量相同
+labels = torch.arange(num_classes).repeat_interleave(num_samples // num_classes)
+
+# 每个样本 = 类别中心 + 随机噪声
+features = centers[labels] + 0.6 * torch.randn(num_samples, 2)
+
+# 包装数据集并划分训练/验证
+cls_dataset = TensorDataset(features, labels)
+cls_train, cls_val = random_split(cls_dataset, [480, 120])
+cls_train_loader = DataLoader(cls_train, batch_size=32, shuffle=True)
+cls_val_loader = DataLoader(cls_val, batch_size=64)
+
+class Classifier(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        # 输入二维点，输出 3 个类别的 logits
+        self.net = nn.Sequential(
+            nn.Linear(2, 16),
+            nn.ReLU(),
+            nn.Linear(16, 3)
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
+classifier = Classifier().to(device)
+cls_loss_fn = nn.CrossEntropyLoss()
+cls_optimizer = optim.Adam(classifier.parameters(), lr=0.03)
+
+def accuracy(model, loader):
+    # 计算准确率的辅助函数
+    model.eval()
+    correct = 0
+    total = 0
+
+    with torch.no_grad():
+        for xb, yb in loader:
+            xb = xb.to(device)
+            yb = yb.to(device)
+
+            # logits shape: [batch_size, num_classes]
+            logits = model(xb)
+
+            # 取每行最大值所在下标作为预测类别
+            pred = logits.argmax(dim=1)
+
+            correct += (pred == yb).sum().item()
+            total += yb.numel()
+
+    return correct / total
+
+for epoch in range(1, 16):
+    classifier.train()
+
+    for xb, yb in cls_train_loader:
+        xb = xb.to(device)
+        yb = yb.to(device)
+
+        logits = classifier(xb)
+        loss = cls_loss_fn(logits, yb)
+
+        cls_optimizer.zero_grad()
+        loss.backward()
+        cls_optimizer.step()
+
+    if epoch == 1 or epoch % 5 == 0:
+        print(f&quot;epoch {epoch:02d} | val_acc={accuracy(classifier, cls_val_loader):.3f}&quot;)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="9-1-自编码器-AutoEncoder：先压缩再还原"><a href="#9-1-自编码器-AutoEncoder：先压缩再还原" class="headerlink" title="9.1 自编码器 AutoEncoder：先压缩再还原"></a>9.1 自编码器 AutoEncoder：先压缩再还原</h3><p>自编码器学习把输入压缩到低维表示，再重建回原输入。它常用于降维、去噪、异常检测等。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 一个非常小的自编码器
+class AutoEncoder(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.encoder = nn.Sequential(nn.Linear(10, 6), nn.ReLU(), nn.Linear(6, 3))
+        self.decoder = nn.Sequential(nn.Linear(3, 6), nn.ReLU(), nn.Linear(6, 10))
+
+    def forward(self, x):
+        z = self.encoder(x)       # 压缩表示
+        recon = self.decoder(z)   # 重建输入
+        return recon
+
+ae = AutoEncoder().to(device)
+ae_x = torch.randn(5, 10).to(device)
+ae_recon = ae(ae_x)
+
+# 自编码器训练时，目标通常就是输入本身
+recon_loss = nn.MSELoss()(ae_recon, ae_x)
+print(&quot;reconstructed shape:&quot;, ae_recon.shape)
+print(&quot;reconstruction loss:&quot;, recon_loss.item())
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="9-2-GAN：生成器和判别器的基本结构"><a href="#9-2-GAN：生成器和判别器的基本结构" class="headerlink" title="9.2 GAN：生成器和判别器的基本结构"></a>9.2 GAN：生成器和判别器的基本结构</h3><p>GAN 有两个模型：生成器 Generator 和判别器 Discriminator。生成器试图生成假样本骗过判别器；判别器试图区分真实样本和假样本。这里不完整训练，只演示结构。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># GAN 的最小结构示意
+class Generator(nn.Module):
+    def __init__(self, noise_dim=5, data_dim=2):
+        super().__init__()
+        self.net = nn.Sequential(nn.Linear(noise_dim, 16), nn.ReLU(), nn.Linear(16, data_dim))
+
+    def forward(self, z):
+        return self.net(z)
+
+class Discriminator(nn.Module):
+    def __init__(self, data_dim=2):
+        super().__init__()
+        self.net = nn.Sequential(nn.Linear(data_dim, 16), nn.ReLU(), nn.Linear(16, 1))
+
+    def forward(self, x):
+        # 输出 logit，训练时配合 BCEWithLogitsLoss
+        return self.net(x)
+
+generator = Generator().to(device)
+discriminator = Discriminator().to(device)
+
+noise = torch.randn(4, 5).to(device)
+fake_data = generator(noise)
+fake_logits = discriminator(fake_data)
+
+print(&quot;fake data shape:&quot;, fake_data.shape)
+print(&quot;fake logits shape:&quot;, fake_logits.shape)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h2 id="10-CNN-和-RNN-的形状理解"><a href="#10-CNN-和-RNN-的形状理解" class="headerlink" title="10. CNN 和 RNN 的形状理解"></a>10. CNN 和 RNN 的形状理解</h2><p>菜鸟教程后续会介绍 CNN、RNN、LSTM、GRU、Transformer 等模型。这里先不训练复杂模型，只用小例子理解输入输出 shape。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># CNN 示例：Conv2d 接收 [batch, channels, height, width]
+cnn = nn.Sequential(
+    # 输入通道 3，输出通道 8，卷积核 3x3，padding=1 保持高宽不变
+    nn.Conv2d(in_channels=3, out_channels=8, kernel_size=3, padding=1),
+    nn.ReLU(),
+
+    # 最大池化让高宽减半：32x32 -&gt; 16x16
+    nn.MaxPool2d(kernel_size=2),
+
+    # 把特征图拉平，方便接全连接层
+    nn.Flatten(),
+
+    # 8 个通道，每个通道 16x16，所以输入维度是 8*16*16
+    nn.Linear(8 * 16 * 16, 10)
+).to(device)
+
+# 模拟 4 张 32x32 RGB 图片
+fake_images = torch.randn(4, 3, 32, 32).to(device)
+cnn_out = cnn(fake_images)
+print(&quot;CNN input shape:&quot;, fake_images.shape)
+print(&quot;CNN output shape:&quot;, cnn_out.shape)
+
+# RNN 示例：batch_first=True 时输入 shape 是 [batch, seq_len, input_size]
+rnn = nn.RNN(input_size=5, hidden_size=8, batch_first=True).to(device)
+
+# 模拟 4 条序列，每条序列长度为 6，每个时间步有 5 个特征
+fake_sequence = torch.randn(4, 6, 5).to(device)
+rnn_out, hidden = rnn(fake_sequence)
+print(&quot;RNN input shape:&quot;, fake_sequence.shape)
+print(&quot;RNN output shape:&quot;, rnn_out.shape)
+print(&quot;RNN hidden shape:&quot;, hidden.shape)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="10-1-迁移学习：借用训练好的模型"><a href="#10-1-迁移学习：借用训练好的模型" class="headerlink" title="10.1 迁移学习：借用训练好的模型"></a>10.1 迁移学习：借用训练好的模型</h3><p>迁移学习的核心：使用已有模型学到的通用特征，只替换最后的分类头。真实图像项目里很常见。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 迁移学习结构示例
+# 为避免下载预训练权重，这里只演示“冻结特征层 + 替换分类头”的写法
+try:
+    from torchvision import models
+
+    resnet = models.resnet18(weights=None)  # 不下载权重，只创建结构
+
+    # 冻结原模型参数：它们不参与训练
+    for param in resnet.parameters():
+        param.requires_grad = False
+
+    # 替换最后的全连接层，把输出类别改成 5 类
+    in_features = resnet.fc.in_features
+    resnet.fc = nn.Linear(in_features, 5)
+
+    trainable_params = [p for p in resnet.parameters() if p.requires_grad]
+    print(&quot;可训练参数组数量:&quot;, len(trainable_params))
+    print(&quot;新的分类头:&quot;, resnet.fc)
+except ModuleNotFoundError as e:
+    print(&quot;需要 torchvision 才能运行迁移学习示例。&quot;)
+    print(&quot;安装命令示例：python -m pip install torchvision&quot;)
+    print(&quot;原始错误:&quot;, e)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="10-2-LSTM-GRU：处理序列数据"><a href="#10-2-LSTM-GRU：处理序列数据" class="headerlink" title="10.2 LSTM &#x2F; GRU：处理序列数据"></a>10.2 LSTM &#x2F; GRU：处理序列数据</h3><p>RNN、LSTM、GRU 用来处理序列数据，例如文本、时间序列、语音特征。先抓住 shape：如果 <code>batch_first=True</code>，输入通常是 <code>[batch, seq_len, input_size]</code>。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># LSTM 和 GRU 的 shape 示例
+batch_size = 4
+seq_len = 6
+input_size = 5
+hidden_size = 8
+
+# 4 条序列，每条长度 6，每个时间步 5 个特征
+sequence = torch.randn(batch_size, seq_len, input_size).to(device)
+
+# LSTM 返回 output，以及 (h_n, c_n)
+lstm = nn.LSTM(input_size=input_size, hidden_size=hidden_size, batch_first=True).to(device)
+lstm_out, (h_n, c_n) = lstm(sequence)
+print(&quot;LSTM output shape:&quot;, lstm_out.shape)
+print(&quot;LSTM h_n shape:&quot;, h_n.shape)
+print(&quot;LSTM c_n shape:&quot;, c_n.shape)
+
+# GRU 返回 output 和 h_n，没有 c_n
+gru = nn.GRU(input_size=input_size, hidden_size=hidden_size, batch_first=True).to(device)
+gru_out, gru_h = gru(sequence)
+print(&quot;GRU output shape:&quot;, gru_out.shape)
+print(&quot;GRU h_n shape:&quot;, gru_h.shape)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="10-3-Embedding：把文字编号变成向量"><a href="#10-3-Embedding：把文字编号变成向量" class="headerlink" title="10.3 Embedding：把文字编号变成向量"></a>10.3 Embedding：把文字编号变成向量</h3><p>词嵌入把“词的编号”转换成“可训练向量”。文本模型通常先做分词和编号，再通过 <code>nn.Embedding</code> 得到向量序列。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># Embedding 示例：把单词编号变成向量
+vocab = {&quot;&lt;pad&gt;&quot;: 0, &quot;good&quot;: 1, &quot;bad&quot;: 2, &quot;movie&quot;: 3}
+
+# 假设一句话是 good movie，对应编号 [1, 3]
+token_ids = torch.tensor([[vocab[&quot;good&quot;], vocab[&quot;movie&quot;]]], dtype=torch.long).to(device)
+
+# num_embeddings 是词表大小，embedding_dim 是每个词向量的维度
+embedding = nn.Embedding(num_embeddings=len(vocab), embedding_dim=4).to(device)
+embedded = embedding(token_ids)
+
+print(&quot;token ids shape:&quot;, token_ids.shape)
+print(&quot;embedded shape:&quot;, embedded.shape)
+print(&quot;embedded tensor:\n&quot;, embedded)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="10-4-注意力机制和-Transformer-的最小直觉"><a href="#10-4-注意力机制和-Transformer-的最小直觉" class="headerlink" title="10.4 注意力机制和 Transformer 的最小直觉"></a>10.4 注意力机制和 Transformer 的最小直觉</h3><p>注意力机制可以理解为：当前位置处理信息时，应该重点关注序列中的哪些位置。Transformer 是现代 NLP 和大模型的基础结构。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># MultiheadAttention 最小示例
+embed_dim = 8
+num_heads = 2
+attention = nn.MultiheadAttention(embed_dim=embed_dim, num_heads=num_heads, batch_first=True).to(device)
+
+# 输入 shape: [batch, seq_len, embed_dim]
+x_attn = torch.randn(2, 4, embed_dim).to(device)
+
+# 自注意力中 query、key、value 都来自同一个 x
+attn_out, attn_weights = attention(x_attn, x_attn, x_attn)
+
+print(&quot;attention input shape:&quot;, x_attn.shape)
+print(&quot;attention output shape:&quot;, attn_out.shape)
+print(&quot;attention weights shape:&quot;, attn_weights.shape)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h2 id="11-学习率调度、保存加载、推理模式"><a href="#11-学习率调度、保存加载、推理模式" class="headerlink" title="11. 学习率调度、保存加载、推理模式"></a>11. 学习率调度、保存加载、推理模式</h2><p>训练中常见工程操作包括：调整学习率、保存模型参数、加载模型、推理时关闭梯度。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 学习率调度器示例
+# StepLR 表示每隔 step_size 个 epoch，把学习率乘以 gamma
+optimizer_demo = optim.SGD(reg_model.parameters(), lr=0.1)
+scheduler = optim.lr_scheduler.StepLR(optimizer_demo, step_size=2, gamma=0.5)
+
+for epoch in range(1, 6):
+    # 这里只演示学习率变化，不进行真实训练
+    current_lr = optimizer_demo.param_groups[0][&quot;lr&quot;]
+    print(f&quot;epoch {epoch}, lr before step = {current_lr}&quot;)
+
+    # scheduler.step() 通常在每个 epoch 结束后调用
+    scheduler.step()
+
+# 保存模型参数
+save_path = &quot;pytorch_classifier_state_dict.pt&quot;
+torch.save(classifier.state_dict(), save_path)
+print(&quot;model saved to:&quot;, save_path)
+
+# 加载模型参数时，需要先创建相同结构的模型
+loaded_classifier = Classifier().to(device)
+loaded_classifier.load_state_dict(torch.load(save_path, map_location=device))
+
+# 推理前切换到 eval 模式
+loaded_classifier.eval()
+
+# 推理时使用 no_grad，节省显存和计算
+with torch.no_grad():
+    test_points = torch.tensor([[2.0, 2.0], [-2.0, 1.0], [0.0, -2.0]], device=device)
+    logits = loaded_classifier(test_points)
+
+    # 推理阶段可以用 softmax 把 logits 转成概率
+    probs = torch.softmax(logits, dim=1)
+    pred = probs.argmax(dim=1)
+
+print(&quot;probabilities:\n&quot;, probs.cpu())
+print(&quot;predicted classes:&quot;, pred.cpu().tolist())
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="11-1-torch-save-torch-load：保存和加载模型"><a href="#11-1-torch-save-torch-load：保存和加载模型" class="headerlink" title="11.1 torch.save &#x2F; torch.load：保存和加载模型"></a>11.1 torch.save &#x2F; torch.load：保存和加载模型</h3><p>训练完模型后，通常保存 <code>state_dict</code>，也就是模型参数字典。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 定义一个小模型
+model = nn.Linear(2, 1)
+
+# 保存模型参数，不建议直接保存整个模型对象
+torch.save(model.state_dict(), &quot;linear_state_dict.pt&quot;)
+
+# 创建同结构的新模型
+new_model = nn.Linear(2, 1)
+
+# 加载参数
+new_model.load_state_dict(torch.load(&quot;linear_state_dict.pt&quot;))
+
+# 切换到评估模式，关闭 Dropout、固定 BatchNorm 行为
+new_model.eval()
+
+print(new_model.state_dict().keys())
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="11-2-no-grad-和-inference-mode：验证和推理时关闭梯度"><a href="#11-2-no-grad-和-inference-mode：验证和推理时关闭梯度" class="headerlink" title="11.2 no_grad 和 inference_mode：验证和推理时关闭梯度"></a>11.2 no_grad 和 inference_mode：验证和推理时关闭梯度</h3><p>验证和推理时不需要计算梯度，关闭梯度记录可以省显存、提速度。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 创建一个简单模型和输入
+model = nn.Linear(4, 2)
+x = torch.randn(1, 4)
+
+# no_grad：不记录梯度，常用于验证阶段
+with torch.no_grad():
+    y1 = model(x)
+
+# inference_mode：更彻底的推理模式，适合纯推理场景
+with torch.inference_mode():
+    y2 = model(x)
+
+print(y1)
+print(y2)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="11-3-混合精度训练-AMP：更快更省显存"><a href="#11-3-混合精度训练-AMP：更快更省显存" class="headerlink" title="11.3 混合精度训练 AMP：更快更省显存"></a>11.3 混合精度训练 AMP：更快更省显存</h3><p>混合精度训练使用较低精度加速计算、减少显存。GPU 上常用，CPU 上不一定有收益。下面给的是标准写法骨架。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># AMP 标准写法骨架
+if torch.cuda.is_available():
+    amp_model = SimpleNet().to(device)
+    amp_optimizer = optim.Adam(amp_model.parameters(), lr=0.01)
+    amp_loss_fn = nn.MSELoss()
+    scaler = torch.cuda.amp.GradScaler()
+
+    amp_x = torch.randn(8, 2).to(device)
+    amp_y = torch.randn(8, 1).to(device)
+    amp_optimizer.zero_grad()
+
+    # autocast 自动选择合适精度执行部分运算
+    with torch.cuda.amp.autocast():
+        amp_pred = amp_model(amp_x)
+        amp_loss = amp_loss_fn(amp_pred, amp_y)
+
+    scaler.scale(amp_loss).backward()
+    scaler.step(amp_optimizer)
+    scaler.update()
+    print(&quot;AMP loss:&quot;, amp_loss.item())
+else:
+    print(&quot;当前没有 CUDA，跳过 AMP 运行示例。&quot;)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="11-4-TorchScript-ONNX：模型导出"><a href="#11-4-TorchScript-ONNX：模型导出" class="headerlink" title="11.4 TorchScript &#x2F; ONNX：模型导出"></a>11.4 TorchScript &#x2F; ONNX：模型导出</h3><p>部署时常需要导出模型。TorchScript 是 PyTorch 自己的中间表示，ONNX 是更通用的模型交换格式。这里演示 TorchScript；ONNX 需要额外安装 <code>onnx</code>。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># TorchScript trace 示例
+script_model = SimpleNet().to(device)
+example_input = torch.randn(1, 2).to(device)
+
+# trace 会用一个示例输入记录模型计算图
+traced_model = torch.jit.trace(script_model, example_input)
+traced_path = &quot;simple_net_traced.pt&quot;
+traced_model.save(traced_path)
+print(&quot;TorchScript model saved to:&quot;, traced_path)
+
+# ONNX 导出骨架：需要安装 onnx
+# torch.onnx.export(script_model, example_input, &quot;simple_net.onnx&quot;, input_names=[&quot;input&quot;], output_names=[&quot;output&quot;])
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="11-5-分布式训练：多卡训练的基本概念"><a href="#11-5-分布式训练：多卡训练的基本概念" class="headerlink" title="11.5 分布式训练：多卡训练的基本概念"></a>11.5 分布式训练：多卡训练的基本概念</h3><p>分布式训练用于多 GPU 或多机器训练。初学不用马上写完整代码，但要知道：<code>rank</code> 是当前进程编号，<code>world_size</code> 是总进程数，<code>backend</code> 是通信后端。完整 DDP 通常要用 <code>torchrun</code> 从命令行启动。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 分布式训练不适合在单个 notebook 单元里直接启动，这里只放概念变量
+world_size = 1  # 总进程数。单机单卡时可以理解为 1
+rank = 0        # 当前进程编号。只有一个进程时就是 0
+backend = &quot;gloo&quot;  # CPU 可用 gloo，NVIDIA GPU 常用 nccl
+
+print(&quot;world_size:&quot;, world_size)
+print(&quot;rank:&quot;, rank)
+print(&quot;backend:&quot;, backend)
+print(&quot;完整 DDP 训练通常需要使用 torchrun 从命令行启动。&quot;)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h2 id="12-常见问题和调试习惯"><a href="#12-常见问题和调试习惯" class="headerlink" title="12. 常见问题和调试习惯"></a>12. 常见问题和调试习惯</h2><p>初学 PyTorch 最常见的问题：</p>
+<ul>
+<li>shape 不匹配：多打印 <code>x.shape</code></li>
+<li>dtype 不对：分类标签通常要 <code>torch.long</code></li>
+<li>device 不一致：模型和数据都要放到同一个 <code>device</code></li>
+<li>忘记清梯度：训练时每个 batch 前要 <code>optimizer.zero_grad()</code></li>
+<li>训练和推理模式混用：训练用 <code>model.train()</code>，验证&#x2F;推理用 <code>model.eval()</code></li>
+<li>推理忘记关闭梯度：使用 <code>with torch.no_grad():</code></li>
+</ul>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 一个小的调试辅助函数：打印 Tensor 的关键信息
+def describe_tensor(name, tensor):
+    # name 是变量名，tensor 是要检查的 Tensor
+    print(f&quot;{name}: shape={tuple(tensor.shape)}, dtype={tensor.dtype}, device={tensor.device}&quot;)
+
+# 示例：检查一个 batch 的输入和标签
+describe_tensor(&quot;xb&quot;, xb)
+describe_tensor(&quot;yb&quot;, yb)
+
+# 检查模型参数在哪个设备上
+first_param = next(classifier.parameters())
+describe_tensor(&quot;first model parameter&quot;, first_param)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="12-1-模型评估：准确率和混淆矩阵"><a href="#12-1-模型评估：准确率和混淆矩阵" class="headerlink" title="12.1 模型评估：准确率和混淆矩阵"></a>12.1 模型评估：准确率和混淆矩阵</h3><p>评估不仅看 loss，也要看准确率、混淆矩阵、召回率、F1 等。入门阶段先掌握准确率和混淆矩阵的手写版本。</p>
+</section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 手写一个简单混淆矩阵
+# confusion[i, j] 表示真实类别为 i、预测类别为 j 的数量
+y_true = torch.tensor([0, 1, 2, 1, 0, 2, 2])
+y_pred = torch.tensor([0, 2, 2, 1, 0, 0, 2])
+num_classes = 3
+confusion = torch.zeros(num_classes, num_classes, dtype=torch.long)
+
+for t, p in zip(y_true, y_pred):
+    confusion[t, p] += 1
+
+accuracy_value = (y_true == y_pred).float().mean().item()
+print(&quot;accuracy:&quot;, accuracy_value)
+print(&quot;confusion matrix:\n&quot;, confusion)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h2 id="13-练习题"><a href="#13-练习题" class="headerlink" title="13. 练习题"></a>13. 练习题</h2><p>建议先自己写，再看下面参考答案。</p>
+<ol>
+<li>Tensor 练习：创建一个 <code>[3, 4]</code> Tensor，内容为 0 到 11，输出第 2 行、第 3 列、每一行的和。</li>
+<li>Autograd 练习：令 <code>y = x^3 + 2x</code>，当 <code>x = 3</code> 时计算 <code>dy/dx</code>。</li>
+<li>Dataset 练习：自己写一个 <code>Dataset</code>，返回 <code>(feature, label)</code>。</li>
+<li>训练循环练习：把“清梯度、反向传播、更新参数”三步封装进一个函数。</li>
+</ol>
+</section>
+<section class="ipynb-cell ipynb-markdown-cell"><h2 id="14-练习参考答案"><a href="#14-练习参考答案" class="headerlink" title="14. 练习参考答案"></a>14. 练习参考答案</h2></section>
+<section class="ipynb-cell ipynb-code-cell"><div class="ipynb-input"><div class="ipynb-input-prompt">In&nbsp;[]:</div><div class="ipynb-code-body"><pre><code class="language-python"># 练习 1：Tensor 创建、索引和统计
+exercise_x = torch.arange(12).reshape(3, 4)
+print(&quot;exercise_x =\n&quot;, exercise_x)
+
+# 第 2 行对应下标 1
+print(&quot;第 2 行:&quot;, exercise_x[1])
+
+# 第 3 列对应下标 2
+print(&quot;第 3 列:&quot;, exercise_x[:, 2])
+
+# dim=1 表示按行求和
+print(&quot;每一行的和:&quot;, exercise_x.sum(dim=1))
+
+# 练习 2：自动求导
+exercise_x = torch.tensor(3.0, requires_grad=True)
+exercise_y = exercise_x ** 3 + 2 * exercise_x
+exercise_y.backward()
+print(&quot;dy/dx:&quot;, exercise_x.grad.item())
+print(&quot;数学结果应该是 3*x^2 + 2 =&quot;, 3 * 3**2 + 2)
+
+# 练习 3：自定义 Dataset
+class PracticeDataset(Dataset):
+    def __init__(self, features, labels):
+        self.features = features
+        self.labels = labels
+
+    def __len__(self):
+        return len(self.features)
+
+    def __getitem__(self, index):
+        return self.features[index], self.labels[index]
+
+practice_dataset = PracticeDataset(X, y)
+print(&quot;practice dataset length:&quot;, len(practice_dataset))
+
+# 练习 4：封装单个 epoch 的训练逻辑
+def train_one_epoch(model, loader, loss_fn, optimizer, device):
+    # 切换到训练模式
+    model.train()
+
+    total_loss = 0.0
+    total_count = 0
+
+    for xb, yb in loader:
+        xb = xb.to(device)
+        yb = yb.to(device)
+
+        pred = model(xb)
+        loss = loss_fn(pred, yb)
+
+        # 三个关键步骤：清梯度、反向传播、更新参数
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        total_loss += loss.item() * xb.size(0)
+        total_count += xb.size(0)
+
+    return total_loss / total_count
+
+# 用线性回归模型测试一下函数能否正常运行
+practice_model = LinearRegressionModel().to(device)
+practice_loss_fn = nn.MSELoss()
+practice_optimizer = optim.SGD(practice_model.parameters(), lr=0.05)
+practice_loss = train_one_epoch(practice_model, train_loader, practice_loss_fn, practice_optimizer, device)
+print(&quot;practice one epoch loss:&quot;, practice_loss)
+</code></pre>
+</div></div></section>
+<section class="ipynb-cell ipynb-markdown-cell"><h2 id="15-后续学习路线"><a href="#15-后续学习路线" class="headerlink" title="15. 后续学习路线"></a>15. 后续学习路线</h2><p>完成这份 notebook 后，可以继续按下面顺序学习：</p>
+<ol>
+<li>张量高级操作：拼接、堆叠、广播、einsum</li>
+<li>Autograd 深入：计算图、detach、no_grad、自定义 Function</li>
+<li>CNN：卷积、池化、图像分类</li>
+<li>RNN &#x2F; LSTM &#x2F; GRU：序列建模</li>
+<li>Transformer：注意力机制和编码器结构</li>
+<li>torchvision：数据集、图像增强、预训练模型</li>
+<li>模型部署：TorchScript、ONNX、API 推理服务</li>
+</ol>
+</section>
+<section class="ipynb-cell ipynb-markdown-cell"><h3 id="15-1-进阶内容怎么继续学"><a href="#15-1-进阶内容怎么继续学" class="headerlink" title="15.1 进阶内容怎么继续学"></a>15.1 进阶内容怎么继续学</h3><p>我的建议顺序：</p>
+<ol>
+<li>做图像：先学 <code>torchvision transforms</code>、CNN、迁移学习、批归一化。</li>
+<li>做文本：先学 Embedding、LSTM&#x2F;GRU、注意力机制、Transformer。</li>
+<li>提高训练效果：学损失函数、优化器、学习率调度器、模型评估与调试。</li>
+<li>工程部署：学保存加载、TorchScript、ONNX、混合精度。</li>
+<li>GAN、自编码器、分布式训练可以后学，它们更偏专题和工程进阶。</li>
+</ol>
+<p>这一节的代码主要是“骨架和直觉”。真正掌握的方法，还是把每个专题拿一个小数据集完整训练一遍。</p>
+</section></div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a target="_blank" rel="noopener" href="https://github.com/daihuohuo2">daihuohuo2</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://daihuohuo2.github.io/myblog/2026/05/24/PyTorch%E5%9F%BA%E7%A1%80/">https://daihuohuo2.github.io/myblog/2026/05/24/PyTorch%E5%9F%BA%E7%A1%80/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://daihuohuo2.github.io/myblog" target="_blank">DAIHUOHUO</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/myblog/tags/PyTorch/">PyTorch</a><a class="post-meta__tags" href="/myblog/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a><a class="post-meta__tags" href="/myblog/tags/%E8%BE%83%E9%9A%BE%E7%9F%A5%E8%AF%86/">较难知识</a></div><div class="post-share"><div class="social-share" data-image="https://avatars.githubusercontent.com/u/193844570?v=4" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/myblog/2026/05/24/diray11/" title="这段时间"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">这段时间</div></div><div class="info-2"><div class="info-item-1">这段时间的小结这段时间比较的忙，不仅仅是身体上的忙，感觉也是心灵上的忙；首先是身体上的忙，一个是经常去爬山，跑步，再加上今天下雨的训练，让我感觉有些累。再者就是天气的变化多端，有时是晴空万里，有时是暴雨倾盆，很少有人会在这种极端的变化里面寻找到心灵的慰藉；人际交往也是增加自己工作量的一个方面，自己想和别人交流和别人想和自己交流，这两件事常常不会重叠，导致我在歇息的时间也会被这件事占据，不过和别人交流在我看来也是一种不错的休息方式； 这段时间还做了很多的实验，虽然大多数都是在Codex的帮助下完成的，但是自己在与ai的交流里面也学到了不少东西；前几天手指发麻，左手的无名指和小拇指，查阅了资料和咨询了医生发现是自己的尺神经受到了压迫，其实这不难想到，每天都对着电脑敲代码，敲字，手一直保持这个曲肘的状态，并且我有时候习惯趴在左手上面睡觉，这才导致了如今的情况 学习方面，昨天在图书馆泡了将近一天，学完了算法的知识，但是还没有学完，准备开始操作系统的复习了，计算机网络也要继续学习，把作业做完刚好明天那节课不需要上，是可以在宿舍里面学习的实验课，刚好做一下计网实验，这段时间开始学习llm的知...</div></div></div></a><a class="pagination-related" href="/myblog/2026/05/23/PyTorch%E5%AE%89%E8%A3%85%E6%AD%A5%E9%AA%A4/" title="PyTorch安装步骤"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">PyTorch安装步骤</div></div><div class="info-2"><div class="info-item-1">PyTorch 安装步骤：使用 conda 环境管理这篇文章记录如何把 PyTorch 安装到单独的 conda 环境中，方便后续管理、删除、迁移和在 Jupyter Notebook 中使用。 官方安装页面：  PyTorch 官网安装选择器：https://pytorch.org/get-started/locally/ PyTorch 官方文档安装页：https://docs.pytorch.org/get-started/locally/  一、为什么建议放进 conda 环境不要把 PyTorch 直接装进全局 Python 或 Anaconda 的 base 环境。更推荐单独创建一个环境，例如 pytorch。 这样做的好处：  不污染 base 环境 不同项目可以使用不同 Python 和 PyTorch 版本 装错了可以直接删除环境重来 Jupyter Notebook 可以绑定这个环境作为独立内核 后面安装 numpy、matplotlib、scikit-learn 等包也更清晰  二、检查本机环境打开 PowerShell 或 Anaconda Prompt。...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/myblog/2026/05/26/PyTorch%E5%AE%98%E6%96%B9%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B%E5%A4%8D%E5%88%BB%E6%8C%87%E5%8D%97/" title="PyTorch 官方基础教程复刻指南"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-26</div><div class="info-item-2">PyTorch 官方基础教程复刻指南</div></div><div class="info-2"><div class="info-item-1">这篇笔记根据 PyTorch 官方 Learn the Basics 教程整理，目标不是只看懂概念，而是可以一步一步把官方入门项目复刻出来。 官方教程入口：  Learn the Basics Quickstart Tensors Datasets &amp; DataLoaders Transforms Build the Neural Network Autograd Optimization Save and Load the Model   1. 这个官方项目到底在做什么这个教程会带你完成一个非常典型的深度学习入门项目： 123456789101112131415下载 FashionMNIST 数据集        ↓把图片转换成 Tensor        ↓用 DataLoader 分批读取数据        ↓搭建一个简单神经网络        ↓训练模型        ↓测试模型效果        ↓保存模型参数        ↓重新加载模型并做预测  1.1 FashionMNIST 是什么FashionMNIST 是一个服装图片分类数据集。 它里面的图片是灰度...</div></div></div></a><a class="pagination-related" href="/myblog/2026/06/01/adversarial-attacks-pytorch-%E5%A4%8D%E7%9B%98/" title="adversarial-attacks-pytorch 项目复盘"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-06-01</div><div class="info-item-2">adversarial-attacks-pytorch 项目复盘</div></div><div class="info-2"><div class="info-item-1">adversarial-attacks-pytorch 项目复盘项目地址：Harry24k&#x2F;adversarial-attacks-pytorch 本文按“从零跑通一次攻击实验”的顺序整理，适合复盘 torchattacks 这个项目的使用流程、核心 API、demo 逻辑和源码运行机制。 1. 项目定位adversarial-attacks-pytorch 对外提供的包名是 torchattacks。它是一个 PyTorch 对抗攻击库，用来为图像分类模型生成 adversarial examples，即对抗样本。 它的设计目标是：  用 PyTorch 风格的接口调用攻击算法。 输入模型、原始图片和标签，输出对抗图片。 支持常见白盒攻击、黑盒攻击、目标攻击、迁移攻击、多攻击组合。 支持保存攻击后的数据，再加载到另一个模型上做鲁棒性评估。  最小调用形式如下： 1234import torchattacksatk = torchattacks.PGD(model, eps=8/255, alpha=2/255, steps=4)adv_images = atk(ima...</div></div></div></a><a class="pagination-related" href="/myblog/2026/05/23/PyTorch%E5%AE%89%E8%A3%85%E6%AD%A5%E9%AA%A4/" title="PyTorch安装步骤"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-05-23</div><div class="info-item-2">PyTorch安装步骤</div></div><div class="info-2"><div class="info-item-1">PyTorch 安装步骤：使用 conda 环境管理这篇文章记录如何把 PyTorch 安装到单独的 conda 环境中，方便后续管理、删除、迁移和在 Jupyter Notebook 中使用。 官方安装页面：  PyTorch 官网安装选择器：https://pytorch.org/get-started/locally/ PyTorch 官方文档安装页：https://docs.pytorch.org/get-started/locally/  一、为什么建议放进 conda 环境不要把 PyTorch 直接装进全局 Python 或 Anaconda 的 base 环境。更推荐单独创建一个环境，例如 pytorch。 这样做的好处：  不污染 base 环境 不同项目可以使用不同 Python 和 PyTorch 版本 装错了可以直接删除环境重来 Jupyter Notebook 可以绑定这个环境作为独立内核 后面安装 numpy、matplotlib、scikit-learn 等包也更清晰  二、检查本机环境打开 PowerShell 或 Anaconda Prompt。...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><a href="https://github.com/daihuohuo2" target="_blank" rel="noopener noreferrer"><img src="https://avatars.githubusercontent.com/u/193844570?v=4" onerror="this.onerror=null;this.src='/myblog/img/friend_404.gif'" alt="avatar"/></a></div><div class="author-info-name"><a href="https://github.com/daihuohuo2" target="_blank" rel="noopener noreferrer">daihuohuo2</a></div><div class="author-info-description"></div><div class="site-data"><a href="/myblog/archives/"><div class="headline">文章</div><div class="length-num">31</div></a><a href="/myblog/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/myblog/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/daihuohuo2"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/daihuohuo2" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#PyTorch-%E5%9F%BA%E7%A1%80"><span class="toc-number">一.</span> <span class="toc-text">PyTorch 基础</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E7%8E%AF%E5%A2%83%E6%A3%80%E6%9F%A5"><span class="toc-number"></span> <span class="toc-text">1. 环境检查</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-CUDA-%E5%92%8C-GPU%EF%BC%9A%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E7%94%A8%E6%98%BE%E5%8D%A1"><span class="toc-number"></span> <span class="toc-text">1.1 CUDA 和 GPU：什么时候用显卡</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E9%9A%8F%E6%9C%BA%E7%A7%8D%E5%AD%90%EF%BC%9A%E8%AE%A9%E5%AE%9E%E9%AA%8C%E7%BB%93%E6%9E%9C%E6%9B%B4%E7%A8%B3%E5%AE%9A"><span class="toc-number"></span> <span class="toc-text">1.2 随机种子：让实验结果更稳定</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-PyTorch-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E6%80%BB%E8%A7%88"><span class="toc-number"></span> <span class="toc-text">2. PyTorch 核心概念总览</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E5%85%88%E6%8A%8A%E4%B8%93%E4%B8%9A%E6%9C%AF%E8%AF%AD%E8%AF%B4%E6%B8%85%E6%A5%9A"><span class="toc-number"></span> <span class="toc-text">2.1 先把专业术语说清楚</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%A0%87%E7%AD%BE-label%EF%BC%9F"><span class="toc-number"></span> <span class="toc-text">什么是标签 label？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E7%89%B9%E5%BE%81-feature%EF%BC%9F"><span class="toc-number"></span> <span class="toc-text">什么是特征 feature？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%A8%A1%E5%9E%8B-model%EF%BC%9F"><span class="toc-number"></span> <span class="toc-text">什么是模型 model？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%8D%9F%E5%A4%B1-loss%EF%BC%9F"><span class="toc-number"></span> <span class="toc-text">什么是损失 loss？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-batch-%E5%92%8C-epoch%EF%BC%9F"><span class="toc-number"></span> <span class="toc-text">什么是 batch 和 epoch？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%A2%AF%E5%BA%A6-gradient%EF%BC%9F"><span class="toc-number"></span> <span class="toc-text">什么是梯度 gradient？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E8%AE%AD%E7%BB%83%E5%92%8C%E6%8E%A8%E7%90%86%EF%BC%9F"><span class="toc-number"></span> <span class="toc-text">什么是训练和推理？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E7%B1%BB%E3%80%81%E5%9B%9E%E5%BD%92%E3%80%81%E6%A0%87%E7%AD%BE%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number"></span> <span class="toc-text">分类、回归、标签的区别</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Tensor-%E5%BC%A0%E9%87%8F%E5%9F%BA%E7%A1%80"><span class="toc-number"></span> <span class="toc-text">3. Tensor 张量基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E5%88%9B%E5%BB%BA-Tensor"><span class="toc-number"></span> <span class="toc-text">3.1 创建 Tensor</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-Tensor-%E7%9A%84%E5%B1%9E%E6%80%A7%EF%BC%9Ashape%E3%80%81dtype%E3%80%81device"><span class="toc-number"></span> <span class="toc-text">3.2 Tensor 的属性：shape、dtype、device</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E7%B4%A2%E5%BC%95%E3%80%81%E5%88%87%E7%89%87%E3%80%81%E5%B8%83%E5%B0%94%E7%AD%9B%E9%80%89"><span class="toc-number"></span> <span class="toc-text">3.3 索引、切片、布尔筛选</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-%E5%BD%A2%E7%8A%B6%E5%8F%98%E6%8D%A2"><span class="toc-number"></span> <span class="toc-text">3.4 形状变换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-Tensor-%E8%BF%90%E7%AE%97%E3%80%81%E5%B9%BF%E6%92%AD%E5%92%8C%E7%9F%A9%E9%98%B5%E4%B9%98%E6%B3%95"><span class="toc-number"></span> <span class="toc-text">3.5 Tensor 运算、广播和矩阵乘法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-6-Tensor-%E5%92%8C-NumPy%E3%80%81%E8%AE%BE%E5%A4%87%E8%BD%AC%E6%8D%A2"><span class="toc-number"></span> <span class="toc-text">3.6 Tensor 和 NumPy、设备转换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-7-torch-%E9%A1%B6%E5%B1%82%E5%87%BD%E6%95%B0%EF%BC%9A%E5%88%9B%E5%BB%BA%E3%80%81%E6%8B%BC%E6%8E%A5%E3%80%81%E4%BF%9D%E5%AD%98"><span class="toc-number"></span> <span class="toc-text">3.7 torch 顶层函数：创建、拼接、保存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-8-Tensor-%E8%87%AA%E5%B8%A6%E6%96%B9%E6%B3%95%EF%BC%9Areshape%E3%80%81mean%E3%80%81sum%E3%80%81to"><span class="toc-number"></span> <span class="toc-text">3.8 Tensor 自带方法：reshape、mean、sum、to</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-9-torch-linalg%EF%BC%9A%E7%9F%A9%E9%98%B5%E5%92%8C%E7%BA%BF%E6%80%A7%E4%BB%A3%E6%95%B0"><span class="toc-number"></span> <span class="toc-text">3.9 torch.linalg：矩阵和线性代数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-10-torch-fft%EF%BC%9A%E9%A2%91%E5%9F%9F%E5%8F%98%E6%8D%A2%E7%9A%84%E5%9F%BA%E6%9C%AC%E8%AE%A4%E8%AF%86"><span class="toc-number"></span> <span class="toc-text">3.10 torch.fft：频域变换的基本认识</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-11-torch-distributions%EF%BC%9A%E6%A6%82%E7%8E%87%E5%88%86%E5%B8%83%E5%85%A5%E9%97%A8"><span class="toc-number"></span> <span class="toc-text">3.11 torch.distributions：概率分布入门</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E8%87%AA%E5%8A%A8%E6%B1%82%E5%AF%BC-Autograd"><span class="toc-number"></span> <span class="toc-text">4. 自动求导 Autograd</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-torch-autograd%EF%BC%9A%E6%9B%B4%E7%BB%86%E5%9C%B0%E6%8E%A7%E5%88%B6%E6%A2%AF%E5%BA%A6"><span class="toc-number"></span> <span class="toc-text">4.1 torch.autograd：更细地控制梯度</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80-nn-Module"><span class="toc-number"></span> <span class="toc-text">5. 神经网络基础 nn.Module</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-torch-nn%EF%BC%9A%E5%B8%B8%E7%94%A8%E5%B1%82%E5%92%8C%E6%A8%A1%E5%9E%8B%E5%AE%B9%E5%99%A8"><span class="toc-number"></span> <span class="toc-text">5.1 torch.nn：常用层和模型容器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-ModuleList%E3%80%81Sequential-%E5%92%8C%E5%B8%B8%E8%A7%81%E7%BD%91%E7%BB%9C%E5%B1%82"><span class="toc-number"></span> <span class="toc-text">5.2 ModuleList、Sequential 和常见网络层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-BatchNorm-%E5%92%8C-Dropout%EF%BC%9A%E8%AE%A9%E8%AE%AD%E7%BB%83%E6%9B%B4%E7%A8%B3%E5%AE%9A"><span class="toc-number"></span> <span class="toc-text">5.3 BatchNorm 和 Dropout：让训练更稳定</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0%E5%92%8C%E4%BC%98%E5%8C%96%E5%99%A8"><span class="toc-number"></span> <span class="toc-text">6. 损失函数和优化器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-torch-nn-functional%EF%BC%9A%E5%87%BD%E6%95%B0%E5%BC%8F%E6%BF%80%E6%B4%BB%E5%92%8C%E6%8D%9F%E5%A4%B1"><span class="toc-number"></span> <span class="toc-text">6.1 torch.nn.functional：函数式激活和损失</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-%E5%B8%B8%E8%A7%81%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0%E6%80%8E%E4%B9%88%E9%80%89"><span class="toc-number"></span> <span class="toc-text">6.2 常见损失函数怎么选</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-torch-optim%EF%BC%9A%E4%BC%98%E5%8C%96%E5%99%A8%E6%80%8E%E4%B9%88%E6%9B%B4%E6%96%B0%E5%8F%82%E6%95%B0"><span class="toc-number"></span> <span class="toc-text">6.3 torch.optim：优化器怎么更新参数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E4%B8%8E-DataLoader"><span class="toc-number"></span> <span class="toc-text">7. 数据处理与 DataLoader</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-%E8%87%AA%E5%AE%9A%E4%B9%89-Dataset"><span class="toc-number"></span> <span class="toc-text">7.1 自定义 Dataset</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-torch-utils-data%EF%BC%9A%E6%8A%8A%E6%95%B0%E6%8D%AE%E5%88%86%E6%89%B9%E5%96%82%E7%BB%99%E6%A8%A1%E5%9E%8B"><span class="toc-number"></span> <span class="toc-text">7.2 torch.utils.data：把数据分批喂给模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-3-transforms-%E4%B8%8E-torchvision%EF%BC%9A%E5%9B%BE%E7%89%87%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86"><span class="toc-number"></span> <span class="toc-text">7.3 transforms 与 torchvision：图片数据预处理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%EF%BC%9A%E5%AE%8C%E6%95%B4%E8%AE%AD%E7%BB%83%E5%BE%AA%E7%8E%AF"><span class="toc-number"></span> <span class="toc-text">8. 线性回归：完整训练循环</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%88%86%E7%B1%BB%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C"><span class="toc-number"></span> <span class="toc-text">9. 第一个分类神经网络</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#9-1-%E8%87%AA%E7%BC%96%E7%A0%81%E5%99%A8-AutoEncoder%EF%BC%9A%E5%85%88%E5%8E%8B%E7%BC%A9%E5%86%8D%E8%BF%98%E5%8E%9F"><span class="toc-number"></span> <span class="toc-text">9.1 自编码器 AutoEncoder：先压缩再还原</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-2-GAN%EF%BC%9A%E7%94%9F%E6%88%90%E5%99%A8%E5%92%8C%E5%88%A4%E5%88%AB%E5%99%A8%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="toc-number"></span> <span class="toc-text">9.2 GAN：生成器和判别器的基本结构</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-CNN-%E5%92%8C-RNN-%E7%9A%84%E5%BD%A2%E7%8A%B6%E7%90%86%E8%A7%A3"><span class="toc-number"></span> <span class="toc-text">10. CNN 和 RNN 的形状理解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#10-1-%E8%BF%81%E7%A7%BB%E5%AD%A6%E4%B9%A0%EF%BC%9A%E5%80%9F%E7%94%A8%E8%AE%AD%E7%BB%83%E5%A5%BD%E7%9A%84%E6%A8%A1%E5%9E%8B"><span class="toc-number"></span> <span class="toc-text">10.1 迁移学习：借用训练好的模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-2-LSTM-GRU%EF%BC%9A%E5%A4%84%E7%90%86%E5%BA%8F%E5%88%97%E6%95%B0%E6%8D%AE"><span class="toc-number"></span> <span class="toc-text">10.2 LSTM &#x2F; GRU：处理序列数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-3-Embedding%EF%BC%9A%E6%8A%8A%E6%96%87%E5%AD%97%E7%BC%96%E5%8F%B7%E5%8F%98%E6%88%90%E5%90%91%E9%87%8F"><span class="toc-number"></span> <span class="toc-text">10.3 Embedding：把文字编号变成向量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-4-%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6%E5%92%8C-Transformer-%E7%9A%84%E6%9C%80%E5%B0%8F%E7%9B%B4%E8%A7%89"><span class="toc-number"></span> <span class="toc-text">10.4 注意力机制和 Transformer 的最小直觉</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E5%AD%A6%E4%B9%A0%E7%8E%87%E8%B0%83%E5%BA%A6%E3%80%81%E4%BF%9D%E5%AD%98%E5%8A%A0%E8%BD%BD%E3%80%81%E6%8E%A8%E7%90%86%E6%A8%A1%E5%BC%8F"><span class="toc-number"></span> <span class="toc-text">11. 学习率调度、保存加载、推理模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#11-1-torch-save-torch-load%EF%BC%9A%E4%BF%9D%E5%AD%98%E5%92%8C%E5%8A%A0%E8%BD%BD%E6%A8%A1%E5%9E%8B"><span class="toc-number"></span> <span class="toc-text">11.1 torch.save &#x2F; torch.load：保存和加载模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-2-no-grad-%E5%92%8C-inference-mode%EF%BC%9A%E9%AA%8C%E8%AF%81%E5%92%8C%E6%8E%A8%E7%90%86%E6%97%B6%E5%85%B3%E9%97%AD%E6%A2%AF%E5%BA%A6"><span class="toc-number"></span> <span class="toc-text">11.2 no_grad 和 inference_mode：验证和推理时关闭梯度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-3-%E6%B7%B7%E5%90%88%E7%B2%BE%E5%BA%A6%E8%AE%AD%E7%BB%83-AMP%EF%BC%9A%E6%9B%B4%E5%BF%AB%E6%9B%B4%E7%9C%81%E6%98%BE%E5%AD%98"><span class="toc-number"></span> <span class="toc-text">11.3 混合精度训练 AMP：更快更省显存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-4-TorchScript-ONNX%EF%BC%9A%E6%A8%A1%E5%9E%8B%E5%AF%BC%E5%87%BA"><span class="toc-number"></span> <span class="toc-text">11.4 TorchScript &#x2F; ONNX：模型导出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-5-%E5%88%86%E5%B8%83%E5%BC%8F%E8%AE%AD%E7%BB%83%EF%BC%9A%E5%A4%9A%E5%8D%A1%E8%AE%AD%E7%BB%83%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-number"></span> <span class="toc-text">11.5 分布式训练：多卡训练的基本概念</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E5%92%8C%E8%B0%83%E8%AF%95%E4%B9%A0%E6%83%AF"><span class="toc-number"></span> <span class="toc-text">12. 常见问题和调试习惯</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#12-1-%E6%A8%A1%E5%9E%8B%E8%AF%84%E4%BC%B0%EF%BC%9A%E5%87%86%E7%A1%AE%E7%8E%87%E5%92%8C%E6%B7%B7%E6%B7%86%E7%9F%A9%E9%98%B5"><span class="toc-number"></span> <span class="toc-text">12.1 模型评估：准确率和混淆矩阵</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-%E7%BB%83%E4%B9%A0%E9%A2%98"><span class="toc-number"></span> <span class="toc-text">13. 练习题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#14-%E7%BB%83%E4%B9%A0%E5%8F%82%E8%80%83%E7%AD%94%E6%A1%88"><span class="toc-number"></span> <span class="toc-text">14. 练习参考答案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#15-%E5%90%8E%E7%BB%AD%E5%AD%A6%E4%B9%A0%E8%B7%AF%E7%BA%BF"><span class="toc-number"></span> <span class="toc-text">15. 后续学习路线</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#15-1-%E8%BF%9B%E9%98%B6%E5%86%85%E5%AE%B9%E6%80%8E%E4%B9%88%E7%BB%A7%E7%BB%AD%E5%AD%A6"><span class="toc-number"></span> <span class="toc-text">15.1 进阶内容怎么继续学</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/myblog/2026/06/01/adversarial-attacks-pytorch-%E5%A4%8D%E7%9B%98/" title="adversarial-attacks-pytorch 项目复盘">adversarial-attacks-pytorch 项目复盘</a><time datetime="2026-06-01T11:47:08.000Z" title="发表于 2026-06-01 19:47:08">2026-06-01</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/myblog/2026/05/30/diray12/" title="凉快的周六">凉快的周六</a><time datetime="2026-05-30T12:51:28.000Z" title="发表于 2026-05-30 20:51:28">2026-05-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/myblog/2026/05/26/PyTorch%E5%AE%98%E6%96%B9%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B%E5%A4%8D%E5%88%BB%E6%8C%87%E5%8D%97/" title="PyTorch 官方基础教程复刻指南">PyTorch 官方基础教程复刻指南</a><time datetime="2026-05-26T07:30:00.000Z" title="发表于 2026-05-26 15:30:00">2026-05-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/myblog/2026/05/25/csharp%E5%9F%BA%E7%A1%80/" title="C# 基础">C# 基础</a><time datetime="2026-05-25T07:00:00.000Z" title="发表于 2026-05-25 15:00:00">2026-05-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/myblog/2026/05/24/diray11/" title="这段时间">这段时间</a><time datetime="2026-05-24T13:39:56.000Z" title="发表于 2026-05-24 21:39:56">2026-05-24</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By daihuohuo2</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.5-b1</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/myblog/js/utils.js?v=5.5.5-b1"></script><script src="/myblog/js/main.js?v=5.5.5-b1"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

@@ -1,0 +1,319 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><script async src="https://www.googletagmanager.com/gtag/js?id=G-81X7H81C1C"></script><script>window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+
+gtag('config', 'G-81X7H81C1C');
+
+</script><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>web信息收集与爬虫协议 | DAIHUOHUO</title><meta name="author" content="daihuohuo2"><meta name="copyright" content="daihuohuo2"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="在安全测试或 CTF 中，信息收集常从站点上那些公开却易被忽视的入口入手。本文归纳三个常见考点：  index.phps robots.txt sitemap.xml   index.phps：源码以文本形式返回考点 · 源码泄露在某些服务器配置下，扩展名为 .phps 的文件会被当作 PHP 源代码而非可执行脚本处理，请求时直接以纯文本（如 text&#x2F;plain）返回，多用于开发调试或历史配置未">
+<meta property="og:type" content="article">
+<meta property="og:title" content="web信息收集与爬虫协议">
+<meta property="og:url" content="https://daihuohuo2.github.io/myblog/2026/05/08/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E4%B8%8E%E7%88%AC%E8%99%AB%E5%8D%8F%E8%AE%AE/index.html">
+<meta property="og:site_name" content="DAIHUOHUO">
+<meta property="og:description" content="在安全测试或 CTF 中，信息收集常从站点上那些公开却易被忽视的入口入手。本文归纳三个常见考点：  index.phps robots.txt sitemap.xml   index.phps：源码以文本形式返回考点 · 源码泄露在某些服务器配置下，扩展名为 .phps 的文件会被当作 PHP 源代码而非可执行脚本处理，请求时直接以纯文本（如 text&#x2F;plain）返回，多用于开发调试或历史配置未">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/193844570?v=4">
+<meta property="article:published_time" content="2026-05-08T15:20:51.000Z">
+<meta property="article:modified_time" content="2026-06-01T12:00:41.373Z">
+<meta property="article:author" content="daihuohuo2">
+<meta property="article:tag" content="robots.txt">
+<meta property="article:tag" content="信息收集">
+<meta property="article:tag" content="源码泄露">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://avatars.githubusercontent.com/u/193844570?v=4"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "web信息收集与爬虫协议",
+  "url": "https://daihuohuo2.github.io/myblog/2026/05/08/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E4%B8%8E%E7%88%AC%E8%99%AB%E5%8D%8F%E8%AE%AE/",
+  "image": "https://avatars.githubusercontent.com/u/193844570?v=4",
+  "datePublished": "2026-05-08T15:20:51.000Z",
+  "dateModified": "2026-06-01T12:00:41.373Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "daihuohuo2",
+      "url": "https://github.com/daihuohuo2"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/myblog/img/favicon.png"><link rel="canonical" href="https://daihuohuo2.github.io/myblog/2026/05/08/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E4%B8%8E%E7%88%AC%E8%99%AB%E5%8D%8F%E8%AE%AE/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/myblog/css/index.css?v=5.5.5-b1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-8X1R7XH81C"></script><script>window.dataLayer = window.dataLayer || []
+function gtag(){dataLayer.push(arguments)}
+gtag('js', new Date())
+gtag('config', 'G-8X1R7XH81C')
+btf.addGlobalFn('pjaxComplete', () => {
+  gtag('config', 'G-8X1R7XH81C', {'page_path': window.location.pathname})
+}, 'google_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/myblog/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'web信息收集与爬虫协议',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/myblog/css/glass.css"><!-- hexo injector head_end start --><style>
+.ipynb-notebook{--ipynb-border:rgba(127,127,127,.22);--ipynb-muted:rgba(127,127,127,.72);margin:1rem 0 0}
+.ipynb-cell{margin:1.05rem 0}
+.ipynb-markdown-cell>:first-child{margin-top:0}
+.ipynb-markdown-cell>:last-child{margin-bottom:0}
+.ipynb-input{display:grid;grid-template-columns:5.8rem minmax(0,1fr);gap:.8rem;align-items:start}
+.ipynb-input-prompt{color:var(--ipynb-muted);font-family:Consolas,Monaco,monospace;font-size:.85rem;line-height:1.7;text-align:right;white-space:nowrap}
+.ipynb-code-body{min-width:0}
+.ipynb-code-body figure.highlight{margin:0}
+.ipynb-outputs{margin:.55rem 0 0 6.6rem}
+.ipynb-output{margin:.45rem 0;padding:.75rem .9rem;border:1px solid var(--ipynb-border);border-radius:6px;overflow:auto;white-space:pre-wrap;font-family:Consolas,Monaco,monospace;font-size:.9rem;line-height:1.55}
+.ipynb-output.stderr,.ipynb-output.error{border-color:rgba(220,38,38,.35);background:rgba(220,38,38,.06)}
+.ipynb-rich-output{overflow:auto}
+.ipynb-image-output{display:block;max-width:100%;height:auto;margin:.65rem 0}
+.ipynb-raw-cell pre{padding:.75rem .9rem;border:1px dashed var(--ipynb-border);border-radius:6px;overflow:auto}
+@media (max-width:640px){.ipynb-input{grid-template-columns:1fr}.ipynb-input-prompt{text-align:left}.ipynb-outputs{margin-left:0}}
+</style><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.1"></head><body><div class="bg-animation" id="web_bg" style="background-image: url(https://haowallpaper.com/link/common/file/previewFileImg/15680526683050304);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><a href="https://github.com/daihuohuo2" target="_blank" rel="noopener noreferrer"><img src="https://avatars.githubusercontent.com/u/193844570?v=4" onerror="this.onerror=null;this.src='/myblog/img/friend_404.gif'" alt="avatar"/></a></div><div class="author-info-name text-center"><a href="https://github.com/daihuohuo2" target="_blank" rel="noopener noreferrer">daihuohuo2</a></div><div class="site-data text-center"><a href="/myblog/archives/"><div class="headline">文章</div><div class="length-num">31</div></a><a href="/myblog/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/myblog/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/myblog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/myblog/"><span class="site-name">DAIHUOHUO</span></a><a class="nav-page-title" href="/myblog/"><span class="site-name">web信息收集与爬虫协议</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/myblog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/myblog/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">web信息收集与爬虫协议</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-05-08T15:20:51.000Z" title="发表于 2026-05-08 23:20:51">2026-05-08</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-06-01T12:00:41.373Z" title="更新于 2026-06-01 20:00:41">2026-06-01</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/myblog/categories/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/">网络安全</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>在安全测试或 CTF 中，信息收集常从站点上那些公开却易被忽视的入口入手。本文归纳三个常见考点：</p>
+<ul>
+<li><code>index.phps</code></li>
+<li><code>robots.txt</code></li>
+<li><code>sitemap.xml</code></li>
+</ul>
+<hr>
+<h1 id="index-phps：源码以文本形式返回"><a href="#index-phps：源码以文本形式返回" class="headerlink" title="index.phps：源码以文本形式返回"></a>index.phps：源码以文本形式返回</h1><h2 id="考点-·-源码泄露"><a href="#考点-·-源码泄露" class="headerlink" title="考点 · 源码泄露"></a>考点 · 源码泄露</h2><p>在某些服务器配置下，扩展名为 <code>.phps</code> 的文件会被当作 PHP 源代码而非可执行脚本处理，请求时直接以纯文本（如 <code>text/plain</code>）返回，多用于开发调试或历史配置未及时关闭。</p>
+<p>因此，若站点存在：</p>
+<ul>
+<li><code>index.php</code></li>
+<li><code>config.php</code></li>
+<li><code>flag.php</code></li>
+</ul>
+<p>可尝试访问：</p>
+<ul>
+<li><code>index.phps</code></li>
+<li><code>config.phps</code></li>
+<li><code>flag.phps</code></li>
+</ul>
+<p>一旦服务器按上述规则响应，即可直接看到业务逻辑、密钥或敏感路径，构成典型的源码泄露。</p>
+<hr>
+<h2 id="示例请求"><a href="#示例请求" class="headerlink" title="示例请求"></a>示例请求</h2><figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">GET</span> <span class="string">/index.phps</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>example.com</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="示例响应"><a href="#示例响应" class="headerlink" title="示例响应"></a>示例响应</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$flag</span> = <span class="string">&quot;flag&#123;xxxx&#125;&quot;</span>;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>服务器返回的是 PHP 源代码，而不是脚本执行后的页面。</p>
+<hr>
+<h1 id="robots-txt：爬虫排除协议"><a href="#robots-txt：爬虫排除协议" class="headerlink" title="robots.txt：爬虫排除协议"></a>robots.txt：爬虫排除协议</h1><h2 id="考点-·-爬虫协议"><a href="#考点-·-爬虫协议" class="headerlink" title="考点 · 爬虫协议"></a>考点 · 爬虫协议</h2><p><code>robots.txt</code> 置于站点根目录（即 <code>/robots.txt</code>），用于向搜索引擎与爬虫声明：</p>
+<ul>
+<li>哪些路径允许抓取</li>
+<li>哪些路径不应抓取</li>
+</ul>
+<p>该文件遵循：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Robots Exclusion Protocol</span><br></pre></td></tr></table></figure>
+
+<p>虽无强制力，但被主流爬虫广泛遵守。</p>
+<hr>
+<h2 id="常见指令"><a href="#常见指令" class="headerlink" title="常见指令"></a>常见指令</h2><h3 id="1-User-agent"><a href="#1-User-agent" class="headerlink" title="1. User-agent"></a>1. User-agent</h3><figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">User-agent: *</span><br></pre></td></tr></table></figure>
+
+<p>表示规则适用于所有爬虫。</p>
+<hr>
+<h3 id="2-Disallow"><a href="#2-Disallow" class="headerlink" title="2. Disallow"></a>2. Disallow</h3><figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Disallow: /admin/</span><br></pre></td></tr></table></figure>
+
+<p>表示禁止抓取该路径及其子路径。</p>
+<hr>
+<h3 id="3-Allow"><a href="#3-Allow" class="headerlink" title="3. Allow"></a>3. Allow</h3><figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Allow: /public/</span><br></pre></td></tr></table></figure>
+
+<p>表示允许抓取指定路径。</p>
+<hr>
+<h2 id="robots-txt-示例"><a href="#robots-txt-示例" class="headerlink" title="robots.txt 示例"></a>robots.txt 示例</h2><figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">User-agent: *</span><br><span class="line">Disallow: /admin/</span><br><span class="line">Disallow: /flag.php</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="安全测试中的意义"><a href="#安全测试中的意义" class="headerlink" title="安全测试中的意义"></a>安全测试中的意义</h2><p>从安全与 CTF 角度而言：</p>
+<p>被 <code>Disallow</code> 的路径往往对应：</p>
+<ul>
+<li>管理后台</li>
+<li>接口</li>
+<li>测试页面</li>
+<li>隐藏目录</li>
+</ul>
+<p>因此：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">robots.txt 常被用作信息收集的起点</span><br></pre></td></tr></table></figure>
+
+<p>虽然搜索引擎不会主动抓取这些页面，但测试者仍可手动访问。</p>
+<p>例如：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">GET</span> <span class="string">/admin/</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>example.com</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="sitemap-xml：站点地图"><a href="#sitemap-xml：站点地图" class="headerlink" title="sitemap.xml：站点地图"></a>sitemap.xml：站点地图</h1><h2 id="考点-·-站点地图"><a href="#考点-·-站点地图" class="headerlink" title="考点 · 站点地图"></a>考点 · 站点地图</h2><p><code>sitemap.xml</code> 是面向搜索引擎的站点地图文件，用于列出希望被收录的 URL，并可附带：</p>
+<ul>
+<li>最后修改时间</li>
+<li>更新频率</li>
+<li>页面优先级</li>
+</ul>
+<p>通常位于：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/sitemap.xml</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="sitemap-xml-示例"><a href="#sitemap-xml-示例" class="headerlink" title="sitemap.xml 示例"></a>sitemap.xml 示例</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">urlset</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.sitemaps.org/schemas/sitemap/0.9&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">url</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">loc</span>&gt;</span>https://example.com/<span class="tag">&lt;/<span class="name">loc</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">url</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">url</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">loc</span>&gt;</span>https://example.com/about<span class="tag">&lt;/<span class="name">loc</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">url</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">urlset</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="安全测试中的意义-1"><a href="#安全测试中的意义-1" class="headerlink" title="安全测试中的意义"></a>安全测试中的意义</h2><p><code>sitemap.xml</code> 可能会：</p>
+<ul>
+<li>列出未在首页展示的页面</li>
+<li>暴露后台路径</li>
+<li>泄露测试接口</li>
+<li>暴露目录结构</li>
+</ul>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/admin</span><br><span class="line">/debug</span><br><span class="line">/test</span><br><span class="line">/api/private</span><br></pre></td></tr></table></figure>
+
+<p>这些页面可能并未在网站导航中出现。</p>
+<hr>
+<h2 id="robots-txt-与-sitemap-xml-联动"><a href="#robots-txt-与-sitemap-xml-联动" class="headerlink" title="robots.txt 与 sitemap.xml 联动"></a>robots.txt 与 sitemap.xml 联动</h2><p>有些站点会在：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/robots.txt</span><br></pre></td></tr></table></figure>
+
+<p>中声明：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Sitemap: https://example.com/sitemap.xml</span><br></pre></td></tr></table></figure>
+
+<p>因此信息收集时通常：</p>
+<ol>
+<li>先查看 <code>/robots.txt</code></li>
+<li>再访问 <code>/sitemap.xml</code></li>
+<li>最后结合 <code>.phps</code>、目录扫描等方式进一步探测</li>
+</ol>
+<hr>
+<h1 id="常见信息收集路径"><a href="#常见信息收集路径" class="headerlink" title="常见信息收集路径"></a>常见信息收集路径</h1><h2 id="常见敏感目录"><a href="#常见敏感目录" class="headerlink" title="常见敏感目录"></a>常见敏感目录</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/admin</span><br><span class="line">/debug</span><br><span class="line">/test</span><br><span class="line">/config</span><br><span class="line">/backup</span><br><span class="line">/upload</span><br><span class="line">/api</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="常见源码泄露路径"><a href="#常见源码泄露路径" class="headerlink" title="常见源码泄露路径"></a>常见源码泄露路径</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/index.phps</span><br><span class="line">/config.phps</span><br><span class="line">/flag.phps</span><br><span class="line">/login.phps</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="常见备份文件"><a href="#常见备份文件" class="headerlink" title="常见备份文件"></a>常见备份文件</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/index.php.bak</span><br><span class="line">/index.php~</span><br><span class="line">/www.zip</span><br><span class="line">/backup.tar.gz</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>信息收集阶段常用思路：</p>
+<ol>
+<li>查看 <code>/robots.txt</code></li>
+<li>查看 <code>/sitemap.xml</code></li>
+<li>尝试 <code>.phps</code> 源码泄露</li>
+<li>探测常见敏感路径</li>
+<li>探测备份文件</li>
+</ol>
+<p>很多 CTF Web 题目的突破口都来源于这些“公开但容易忽略”的入口。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a target="_blank" rel="noopener" href="https://github.com/daihuohuo2">daihuohuo2</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://daihuohuo2.github.io/myblog/2026/05/08/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E4%B8%8E%E7%88%AC%E8%99%AB%E5%8D%8F%E8%AE%AE/">https://daihuohuo2.github.io/myblog/2026/05/08/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E4%B8%8E%E7%88%AC%E8%99%AB%E5%8D%8F%E8%AE%AE/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://daihuohuo2.github.io/myblog" target="_blank">DAIHUOHUO</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/myblog/tags/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/">信息收集</a><a class="post-meta__tags" href="/myblog/tags/%E6%BA%90%E7%A0%81%E6%B3%84%E9%9C%B2/">源码泄露</a><a class="post-meta__tags" href="/myblog/tags/robots-txt/">robots.txt</a></div><div class="post-share"><div class="social-share" data-image="https://avatars.githubusercontent.com/u/193844570?v=4" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/myblog/2026/05/09/js%E5%9F%BA%E7%A1%80/" title="js基础"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">js基础</div></div><div class="info-2"><div class="info-item-1">JavaScript 是什么JavaScript 简称 JS，是一门主要用于网页交互的脚本语言。 它可以用来：  修改网页内容 控制页面样式 处理用户点击、输入等事件 发送网络请求 操作浏览器中的数据 配合 HTML &#x2F; CSS 实现动态网页  在 Web CTF 中，JS 常用于：  前端校验 参数生成 加密 &#x2F; 编码 登录逻辑 跳转控制 隐藏接口 flag 提示   JS 写在哪里1. 写在 HTML 的 &lt;script&gt; 标签里12345678910111213141516&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;  &lt;meta charset=&quot;UTF-8&quot;&gt;  &lt;title&gt;JS 示例&lt;/title&gt;&lt;/head&gt;&lt;body&gt;  &lt;h1&gt;Hello&lt;/h1&gt;  &lt;script&gt;    alert(&quot;这是 JavaScript&quot;);  &lt;/script&...</div></div></div></a><a class="pagination-related" href="/myblog/2026/05/07/ctf-web/" title="CTF-WEB"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">CTF-WEB</div></div><div class="info-2"><div class="info-item-1">前端逻辑信任 &#x2F; 参数篡改题 题目类型 前端逻辑信任漏洞 参数篡改 HTTP POST 请求 Session &#x2F; Cookie 302 重定向   题目现象网页是一个拼图题，完成拼图点击提交后获取奖励。实际上，服务器信任前端传来的 solved=1 参数。   核心漏洞 前端 JS 使用 fetch(&#39;/complete.php&#39;, &#123; body: &#39;csrf=xxxx&amp;solved=1&#39; &#125;)   服务器只判断 solved 是否为 1   客户端参数可伪造，绕过拼图验证   解题思路 抓包使用 Burp Suite 抓取 POST /complete.php 请求    分析并且伪造请求体   12345POST /complete.php HTTP/1.1 Host: docker.qingcen.net:47762 Cookie: PHPSESSID=xxxx csrf=xxxx&amp;solved=1  得到服务器响应   如图一 12HTTP/1.1 302 FoundLocation:...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><a href="https://github.com/daihuohuo2" target="_blank" rel="noopener noreferrer"><img src="https://avatars.githubusercontent.com/u/193844570?v=4" onerror="this.onerror=null;this.src='/myblog/img/friend_404.gif'" alt="avatar"/></a></div><div class="author-info-name"><a href="https://github.com/daihuohuo2" target="_blank" rel="noopener noreferrer">daihuohuo2</a></div><div class="author-info-description"></div><div class="site-data"><a href="/myblog/archives/"><div class="headline">文章</div><div class="length-num">31</div></a><a href="/myblog/tags/"><div class="headline">标签</div><div class="length-num">43</div></a><a href="/myblog/categories/"><div class="headline">分类</div><div class="length-num">11</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/daihuohuo2"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/daihuohuo2" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#index-phps%EF%BC%9A%E6%BA%90%E7%A0%81%E4%BB%A5%E6%96%87%E6%9C%AC%E5%BD%A2%E5%BC%8F%E8%BF%94%E5%9B%9E"><span class="toc-number">一.</span> <span class="toc-text">index.phps：源码以文本形式返回</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%80%83%E7%82%B9-%C2%B7-%E6%BA%90%E7%A0%81%E6%B3%84%E9%9C%B2"><span class="toc-number"></span> <span class="toc-text">考点 · 源码泄露</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%E8%AF%B7%E6%B1%82"><span class="toc-number"></span> <span class="toc-text">示例请求</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%E5%93%8D%E5%BA%94"><span class="toc-number"></span> <span class="toc-text">示例响应</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#robots-txt%EF%BC%9A%E7%88%AC%E8%99%AB%E6%8E%92%E9%99%A4%E5%8D%8F%E8%AE%AE"><span class="toc-number">二.</span> <span class="toc-text">robots.txt：爬虫排除协议</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%80%83%E7%82%B9-%C2%B7-%E7%88%AC%E8%99%AB%E5%8D%8F%E8%AE%AE"><span class="toc-number"></span> <span class="toc-text">考点 · 爬虫协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E6%8C%87%E4%BB%A4"><span class="toc-number"></span> <span class="toc-text">常见指令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-User-agent"><span class="toc-number"></span> <span class="toc-text">1. User-agent</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Disallow"><span class="toc-number"></span> <span class="toc-text">2. Disallow</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-Allow"><span class="toc-number"></span> <span class="toc-text">3. Allow</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#robots-txt-%E7%A4%BA%E4%BE%8B"><span class="toc-number"></span> <span class="toc-text">robots.txt 示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95%E4%B8%AD%E7%9A%84%E6%84%8F%E4%B9%89"><span class="toc-number"></span> <span class="toc-text">安全测试中的意义</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#sitemap-xml%EF%BC%9A%E7%AB%99%E7%82%B9%E5%9C%B0%E5%9B%BE"><span class="toc-number">三.</span> <span class="toc-text">sitemap.xml：站点地图</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%80%83%E7%82%B9-%C2%B7-%E7%AB%99%E7%82%B9%E5%9C%B0%E5%9B%BE"><span class="toc-number"></span> <span class="toc-text">考点 · 站点地图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sitemap-xml-%E7%A4%BA%E4%BE%8B"><span class="toc-number"></span> <span class="toc-text">sitemap.xml 示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95%E4%B8%AD%E7%9A%84%E6%84%8F%E4%B9%89-1"><span class="toc-number"></span> <span class="toc-text">安全测试中的意义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#robots-txt-%E4%B8%8E-sitemap-xml-%E8%81%94%E5%8A%A8"><span class="toc-number"></span> <span class="toc-text">robots.txt 与 sitemap.xml 联动</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E8%B7%AF%E5%BE%84"><span class="toc-number">四.</span> <span class="toc-text">常见信息收集路径</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E6%95%8F%E6%84%9F%E7%9B%AE%E5%BD%95"><span class="toc-number"></span> <span class="toc-text">常见敏感目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E6%BA%90%E7%A0%81%E6%B3%84%E9%9C%B2%E8%B7%AF%E5%BE%84"><span class="toc-number"></span> <span class="toc-text">常见源码泄露路径</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E5%A4%87%E4%BB%BD%E6%96%87%E4%BB%B6"><span class="toc-number"></span> <span class="toc-text">常见备份文件</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">五.</span> <span class="toc-text">小结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/myblog/2026/06/01/adversarial-attacks-pytorch-%E5%A4%8D%E7%9B%98/" title="adversarial-attacks-pytorch 项目复盘">adversarial-attacks-pytorch 项目复盘</a><time datetime="2026-06-01T11:47:08.000Z" title="发表于 2026-06-01 19:47:08">2026-06-01</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/myblog/2026/05/30/diray12/" title="凉快的周六">凉快的周六</a><time datetime="2026-05-30T12:51:28.000Z" title="发表于 2026-05-30 20:51:28">2026-05-30</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/myblog/2026/05/26/PyTorch%E5%AE%98%E6%96%B9%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B%E5%A4%8D%E5%88%BB%E6%8C%87%E5%8D%97/" title="PyTorch 官方基础教程复刻指南">PyTorch 官方基础教程复刻指南</a><time datetime="2026-05-26T07:30:00.000Z" title="发表于 2026-05-26 15:30:00">2026-05-26</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/myblog/2026/05/25/csharp%E5%9F%BA%E7%A1%80/" title="C# 基础">C# 基础</a><time datetime="2026-05-25T07:00:00.000Z" title="发表于 2026-05-25 15:00:00">2026-05-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/myblog/2026/05/24/diray11/" title="这段时间">这段时间</a><time datetime="2026-05-24T13:39:56.000Z" title="发表于 2026-05-24 21:39:56">2026-05-24</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By daihuohuo2</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.5-b1</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/myblog/js/utils.js?v=5.5.5-b1"></script><script src="/myblog/js/main.js?v=5.5.5-b1"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
