@@ -2,9 +2,11 @@
 title: wifi中断攻击
 date: 2026-04-28 22:49:49
 categories:
-  - 方法回顾
+  - 网络安全
 tags:
-  - 简单技术
+  - WiFi
+  - Kali
+  - 无线安全
 sticky: 0
 ---
 

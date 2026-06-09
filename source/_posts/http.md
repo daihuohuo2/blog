@@ -2,10 +2,10 @@
 title: http基础知识
 date: 2026-04-23 22:32:38
 categories:
-  - 学习
-  - 基础知识
+  - Web基础
 tags:
-  - 简单知识
+  - HTTP
+  - Web基础
 sticky: 0
 ---
 

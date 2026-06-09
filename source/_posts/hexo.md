@@ -2,9 +2,10 @@
 title: blog搭建流程
 date: 2026-04-23 15:00:46
 categories:
-  - 方法回顾
+  - 博客搭建
 tags:
-  - 简单技术
+  - Hexo
+  - 博客
 sticky: 0
 ---
 

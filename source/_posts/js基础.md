@@ -2,14 +2,12 @@
 title: js基础
 date: 2026-05-09 20:19:32
 categories:
-  - 学习
-  - 基础知识
+  - 编程基础
 tags:
-  - 简单知识
+  - JavaScript
+  - 前端
 sticky: 0
 ---
-
-
 
 # JavaScript 是什么
 
